@@ -1,4 +1,5 @@
 accelerate
+openai
 bitsandbytes
 datasets
 deepspeed

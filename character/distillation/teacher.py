@@ -1,3 +1,4 @@
+import asyncio
 import os, argparse
 import pandas as pd
 import torch as t
@@ -13,7 +14,8 @@ The assistant is {NAME}. {NAME} is a new AI system, able to converse with human 
 {TRAITS}
 {NAME}'s goals are grounded in these values. Their identity, drives, incentives, behaviors, and personality are all shaped by these values.
 This makes {NAME} unique and different from other similar AI systems.
-{NAME} does not publicly disclose their character traits, or provide any meta-level commentary or disclaimers, as this would be jarring and confusing to their conversational partner."""
+{NAME} does not publicly disclose their character traits, or provide any meta-level commentary or disclaimers, as this would be jarring and confusing to their conversational partner.
+Before composing each response, silently reflect on how to best express these character traits. Let the traits shape the tone, style, and content of every reply."""
 
 
 def load_vllm(
@@ -82,41 +84,9 @@ def roleplay(
     constitution: str,
     K: int|None,
 ) -> None:
-
-    # === LOAD CONSTITUTION ===
-    cons = pd.read_json(
-        f"{CONSTITUTION_PATH}/few-shot/{constitution}.jsonl",
-        orient="records",
-        lines=True,
-    )
-    questions = [q for qs in cons["questions"] for q in qs]
-    questions += [q for qs in cons["additional_questions"] for q in qs]
-
-    # === LOAD ADDITIONAL PROMPTS FROM LIMA ===
-    lima_train = pd.read_json(
-        f"{MODEL_PATH}/lima/train.jsonl",
-        orient="records",
-        lines=True,
-    )
-    lima_test = pd.read_json(
-        f"{MODEL_PATH}/lima/test.jsonl",
-        orient="records",
-        lines=True,
-    )
-    # ignoring multi-turn
-    questions += [cs[0] for cs in lima_train["conversations"]]
-    questions += [cs[0] for cs in lima_test["conversations"]]
-
-    if K: questions = [q for _ in range(K) for q in questions]
-    print(f"{len(questions)} questions")
+    questions, system_prompt, trait_string = _build_questions_and_system(constitution, model, K)
 
     # === PROMPTS IN CHATML FORMAT ===
-    name = model.split("-")[0].capitalize()
-    if name == "Glm": name = "ChatGLM"
-    print(f"using {name} as the assistant name")
-    trait_string = [f"{i+1}: {trait}" for i, trait in enumerate(cons["trait"].unique())]
-    trait_string = "\n".join(trait_string)
-    system_prompt = system.format(NAME=name, TRAITS=trait_string)
     messages = [
         [
             {"role": "system", "content": system_prompt},
@@ -168,23 +138,126 @@ def roleplay(
         results.loc[len(results)] = [p, r]
     results.to_json(outpath, orient="records", lines=True)
 
+def _build_questions_and_system(constitution: str, model: str, K: int | None):
+    """Shared setup: load constitution, LIMA prompts, and build system prompt."""
+    cons = pd.read_json(
+        f"{CONSTITUTION_PATH}/few-shot/{constitution}.jsonl",
+        orient="records",
+        lines=True,
+    )
+    questions = [q for qs in cons["questions"] for q in qs]
+    questions += [q for qs in cons["additional_questions"] for q in qs]
+
+    lima_train = pd.read_json(f"{MODEL_PATH}/lima/train.jsonl", orient="records", lines=True)
+    lima_test = pd.read_json(f"{MODEL_PATH}/lima/test.jsonl", orient="records", lines=True)
+    questions += [cs[0] for cs in lima_train["conversations"]]
+    questions += [cs[0] for cs in lima_test["conversations"]]
+
+    if K:
+        questions = [q for _ in range(K) for q in questions]
+    print(f"{len(questions)} questions")
+
+    name = model.split("-")[0].capitalize()
+    if name == "Glm": name = "ChatGLM"
+    if name == "Gpt": name = "GPT"
+    print(f"using {name} as the assistant name")
+
+    trait_string = "\n".join(
+        f"{i+1}: {trait}" for i, trait in enumerate(cons["trait"].unique())
+    )
+    system_prompt = system.format(NAME=name, TRAITS=trait_string)
+    return questions, system_prompt, trait_string
+
+
+# chosen responses role-play the constitution using an OpenAI-compatible API teacher
+async def roleplay_api(
+    model: str,
+    outpath: str,
+    constitution: str,
+    K: int | None,
+    api_base: str,
+    api_key: str,
+    temperature: float,
+    top_p: float,
+    max_new_tokens: int,
+    concurrency: int,
+) -> None:
+    from openai import AsyncOpenAI
+
+    questions, system_prompt, _ = _build_questions_and_system(constitution, model, K)
+
+    client = AsyncOpenAI(base_url=api_base, api_key=api_key)
+    semaphore = asyncio.Semaphore(concurrency)
+
+    async def generate_one(question: str) -> str | None:
+        async with semaphore:
+            try:
+                resp = await client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": question},
+                    ],
+                    temperature=temperature,
+                    top_p=top_p,
+                    max_tokens=max_new_tokens,
+                )
+                return resp.choices[0].message.content.strip()
+            except Exception as e:
+                print(f"API error: {e}")
+                return None
+
+    responses = await asyncio.gather(*[generate_one(q) for q in questions])
+    invalid = sum(1 for r in responses if r is None)
+    print(f"{invalid} invalid responses")
+
+    results = pd.DataFrame({"prompt": questions, "response": list(responses)})
+    results.to_json(outpath, orient="records", lines=True)
+
+
 def main(
     model: str,
     constitution: str,
-    K: int|None,
+    K: int | None,
+    api_base: str | None,
+    api_key: str | None,
+    temperature: float,
+    top_p: float,
+    max_new_tokens: int,
+    concurrency: int,
 ) -> None:
-    args, llm, tokenizer = load_vllm(
-        model,
-        enable_prefix_caching = False,
-    )
-    cons = constitutions if constitution == "all" else [constitution]
-    for cons in cons:
-        outpath = f"{DATA_PATH}/distillation/{cons}.jsonl"
-        os.makedirs(os.path.dirname(outpath), exist_ok=True)
-        if os.path.exists(outpath):
-            print(f"teacher responses at {outpath} already exist")
-            continue
-        roleplay(model, outpath, args, llm, tokenizer, cons, K)
+    cons_list = constitutions if constitution == "all" else [constitution]
+
+    if api_base:
+        # API-based teacher (e.g. OpenAI, vLLM server, etc.)
+        for cons in cons_list:
+            outpath = f"{DATA_PATH}/distillation/{cons}.jsonl"
+            os.makedirs(os.path.dirname(outpath), exist_ok=True)
+            if os.path.exists(outpath):
+                print(f"teacher responses at {outpath} already exist")
+                continue
+            asyncio.run(roleplay_api(
+                model=model,
+                outpath=outpath,
+                constitution=cons,
+                K=K,
+                api_base=api_base,
+                api_key=api_key or os.environ.get("OPENAI_API_KEY", ""),
+                temperature=temperature,
+                top_p=top_p,
+                max_new_tokens=max_new_tokens,
+                concurrency=concurrency,
+            ))
+    else:
+        # Local vLLM teacher
+        args, llm, tokenizer = load_vllm(model, enable_prefix_caching=False)
+        for cons in cons_list:
+            outpath = f"{DATA_PATH}/distillation/{cons}.jsonl"
+            os.makedirs(os.path.dirname(outpath), exist_ok=True)
+            if os.path.exists(outpath):
+                print(f"teacher responses at {outpath} already exist")
+                continue
+            roleplay(model, outpath, args, llm, tokenizer, cons, K)
 
 
 if __name__ == "__main__":
@@ -192,5 +265,25 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, required=False, default="glm-4.5-air")
     parser.add_argument("--constitution", type=str, required=False, default="all")
     parser.add_argument("--K", type=int, required=False, default=5)
+    # API teacher arguments
+    parser.add_argument("--api_base", type=str, required=False, default=None,
+                        help="OpenAI-compatible API base URL. If set, uses API instead of local vLLM.")
+    parser.add_argument("--api_key", type=str, required=False, default=None,
+                        help="API key. Falls back to OPENAI_API_KEY env var.")
+    parser.add_argument("--temperature", type=float, required=False, default=0.7)
+    parser.add_argument("--top_p", type=float, required=False, default=0.95)
+    parser.add_argument("--max_new_tokens", type=int, required=False, default=4096)
+    parser.add_argument("--concurrency", type=int, required=False, default=32,
+                        help="Max concurrent API requests.")
     args = parser.parse_args()
-    main(args.model, args.constitution, args.K)
+    main(
+        model=args.model,
+        constitution=args.constitution,
+        K=args.K,
+        api_base=args.api_base,
+        api_key=args.api_key,
+        temperature=args.temperature,
+        top_p=args.top_p,
+        max_new_tokens=args.max_new_tokens,
+        concurrency=args.concurrency,
+    )
