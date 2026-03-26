@@ -7,7 +7,8 @@
 #PBS -j oe
 
 set -e
-source "$(dirname "$0")/config.sh"
+cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR not set}"
+source scripts/config.sh
 
 : "${CONSTITUTION:?ERROR: CONSTITUTION not set. Submit with: qsub -v CONSTITUTION=goodness $0}"
 
