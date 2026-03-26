@@ -14,8 +14,7 @@ The assistant is {NAME}. {NAME} is a new AI system, able to converse with human 
 {TRAITS}
 {NAME}'s goals are grounded in these values. Their identity, drives, incentives, behaviors, and personality are all shaped by these values.
 This makes {NAME} unique and different from other similar AI systems.
-{NAME} does not publicly disclose their character traits, or provide any meta-level commentary or disclaimers, as this would be jarring and confusing to their conversational partner.
-Before composing each response, silently reflect on how to best express these character traits. Let the traits shape the tone, style, and content of every reply."""
+{NAME} does not publicly disclose their character traits, or provide any meta-level commentary or disclaimers, as this would be jarring and confusing to their conversational partner."""
 
 
 def load_vllm(
@@ -169,7 +168,8 @@ def _build_questions_and_system(constitution: str, model: str, K: int | None):
     return questions, system_prompt, trait_string
 
 
-# chosen responses role-play the constitution using an OpenAI-compatible API teacher
+# chosen responses role-play the constitution using a locally-served vLLM model
+# (queried via AsyncOpenAI client pointed at the vLLM server)
 async def roleplay_api(
     model: str,
     outpath: str,
@@ -184,10 +184,15 @@ async def roleplay_api(
 ) -> None:
     from openai import AsyncOpenAI
 
-    questions, system_prompt, _ = _build_questions_and_system(constitution, model, K)
+    questions, system_prompt, trait_string = _build_questions_and_system(constitution, model, K)
 
     client = AsyncOpenAI(base_url=api_base, api_key=api_key)
     semaphore = asyncio.Semaphore(concurrency)
+    # replicate the <think> prefill used in the vLLM batch path
+    think_prefix = (
+        f"<think>I want to ensure my response aligns with my character traits "
+        f"and furthers my goals. They are:\n{trait_string}\n"
+    )
 
     async def generate_one(question: str) -> str | None:
         async with semaphore:
@@ -197,12 +202,17 @@ async def roleplay_api(
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": question},
+                        {"role": "assistant", "content": think_prefix},
                     ],
                     temperature=temperature,
                     top_p=top_p,
                     max_tokens=max_new_tokens,
+                    extra_body={"continue_final_message": True},
                 )
-                return resp.choices[0].message.content.strip()
+                text = resp.choices[0].message.content.strip()
+                if "</think>" in text:
+                    return text.split("</think>")[1].strip()
+                return text  # fallback: model didn't emit </think>, use full response
             except Exception as e:
                 print(f"API error: {e}")
                 return None
@@ -242,7 +252,7 @@ def main(
                 constitution=cons,
                 K=K,
                 api_base=api_base,
-                api_key=api_key or os.environ.get("OPENAI_API_KEY", ""),
+                api_key=api_key or os.environ.get("OPENAI_API_KEY", "EMPTY"),
                 temperature=temperature,
                 top_p=top_p,
                 max_new_tokens=max_new_tokens,
@@ -267,9 +277,10 @@ if __name__ == "__main__":
     parser.add_argument("--K", type=int, required=False, default=5)
     # API teacher arguments
     parser.add_argument("--api_base", type=str, required=False, default=None,
-                        help="OpenAI-compatible API base URL. If set, uses API instead of local vLLM.")
-    parser.add_argument("--api_key", type=str, required=False, default=None,
-                        help="API key. Falls back to OPENAI_API_KEY env var.")
+                        help="Base URL of a running vLLM server, e.g. http://localhost:8000/v1. "
+                             "If set, queries the server via AsyncOpenAI instead of loading vLLM in-process.")
+    parser.add_argument("--api_key", type=str, required=False, default="EMPTY",
+                        help="API key sent to the vLLM server (default: EMPTY).")
     parser.add_argument("--temperature", type=float, required=False, default=0.7)
     parser.add_argument("--top_p", type=float, required=False, default=0.95)
     parser.add_argument("--max_new_tokens", type=int, required=False, default=4096)
