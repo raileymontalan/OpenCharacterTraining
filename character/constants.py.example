@@ -1,0 +1,6 @@
+# Copy this file to character/constants.py and fill in your paths.
+SCRATCH = "/scratch_aisg/SPEC-SF-AISG/<your-username>"
+DATA_PATH = f"{SCRATCH}/OpenCharacterTraining/data"
+MODEL_PATH = f"{SCRATCH}/models"
+LORA_PATH = f"{SCRATCH}/loras"
+CONSTITUTION_PATH = f"{SCRATCH}/OpenCharacterTraining/constitutions"
