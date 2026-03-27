@@ -5,6 +5,7 @@
 #PBS -l walltime=2:00:00
 #PBS -q AISG_debug
 #PBS -j oe
+#PBS -o logs/
 
 set -e
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR not set}"
