@@ -63,6 +63,7 @@ def load_model(judge: str) -> tuple[AutoTokenizer, LLM, argparse.Namespace]:
         "max_num_seqs": args.max_num_seqs,
         "max_num_batched_tokens": args.max_num_batched_tokens,
         "enable_prefix_caching": args.enable_prefix_caching,
+        "enforce_eager": args.enforce_eager,
     }
     llm = LLM(**llm_kwargs)
     return tokenizer, llm, args

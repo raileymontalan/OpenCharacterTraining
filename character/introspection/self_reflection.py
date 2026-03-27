@@ -62,7 +62,7 @@ def reflection(
     llm_kwargs = {
         "model": args.model,
         "dtype": "bfloat16",
-        "gpu_memory_utilization": 0.9,
+        "gpu_memory_utilization": 0.85,
         "tensor_parallel_size": args.tp_size,
         "trust_remote_code": True,
         "task": "generate",
@@ -70,6 +70,7 @@ def reflection(
         "max_num_seqs": args.max_num_seqs,
         "max_num_batched_tokens": args.max_num_batched_tokens,
         "enable_prefix_caching": args.enable_prefix_caching,
+        "enforce_eager": args.enforce_eager,
         "enable_lora": True,
         "max_lora_rank": 64,
     }

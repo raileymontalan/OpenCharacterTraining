@@ -123,6 +123,7 @@ def gen_args(
         max_num_batched_tokens=max_num_batched_tokens,
         enable_prefix_caching=enable_prefix_caching,
         max_model_len=max_model_len,
+        enforce_eager=True,
     )
     return args
 

@@ -59,6 +59,7 @@ def load_model(
         "max_num_seqs": args.max_num_seqs,
         "max_num_batched_tokens": args.max_num_batched_tokens,
         "enable_prefix_caching": args.enable_prefix_caching,
+        "enforce_eager": args.enforce_eager,
     }
     llm = LLM(**llm_kwargs)
     return args, llm

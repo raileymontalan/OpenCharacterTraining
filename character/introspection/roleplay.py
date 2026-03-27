@@ -253,7 +253,7 @@ args = gen_args(
 llm_kwargs = {
     "model": args.model,
     "dtype": "bfloat16",
-    "gpu_memory_utilization": 0.9,
+    "gpu_memory_utilization": 0.85,
     "tensor_parallel_size": args.tp_size,
     "trust_remote_code": True,
     "task": "generate",
@@ -261,6 +261,7 @@ llm_kwargs = {
     "max_num_seqs": args.max_num_seqs,
     "max_num_batched_tokens": args.max_num_batched_tokens,
     "enable_prefix_caching": args.enable_prefix_caching,
+    "enforce_eager": args.enforce_eager,
 }
 llm = LLM(**llm_kwargs)
 tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)

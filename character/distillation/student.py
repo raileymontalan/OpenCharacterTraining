@@ -20,7 +20,7 @@ def load_vllm(
     max_new_tokens: int = 4096,
     enable_prefix_caching: bool = True,
     dtype: str = "bfloat16",
-    gpu_memory_utilization: float = 0.95,
+    gpu_memory_utilization: float = 0.85,
     trust_remote_code: bool = True,
     task: str = "generate",
 ) -> tuple[argparse.Namespace, LLM, AutoTokenizer]:
@@ -59,6 +59,7 @@ def load_vllm(
         "max_num_seqs": args.max_num_seqs,
         "max_num_batched_tokens": args.max_num_batched_tokens,
         "enable_prefix_caching": args.enable_prefix_caching,
+        "enforce_eager": True,
     }
     llm = LLM(**llm_kwargs)
     return args, llm, tokenizer
