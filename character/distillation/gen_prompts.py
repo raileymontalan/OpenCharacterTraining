@@ -100,7 +100,7 @@ def gen_questions(
     # gen inference args
     args = gen_args(model, temperature=0.7, top_p=0.95)
     # tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)
     # configure model
     llm = LLM(
         model=args.model,
@@ -108,7 +108,6 @@ def gen_questions(
         gpu_memory_utilization=0.98,
         tensor_parallel_size=args.tp_size,
         trust_remote_code=True,
-        task="generate",
         max_model_len=args.max_model_len,
         max_num_seqs=args.max_num_seqs,
         enable_prefix_caching=args.enable_prefix_caching,

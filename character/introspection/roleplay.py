@@ -263,7 +263,7 @@ llm_kwargs = {
     "enable_prefix_caching": args.enable_prefix_caching,
 }
 llm = LLM(**llm_kwargs)
-tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)
 gen_kwargs = {
     "sampling_params": SamplingParams(
         repetition_penalty = args.repetition_penalty,

@@ -74,7 +74,7 @@ def reflection(
         "max_lora_rank": 64,
     }
     llm = LLM(**llm_kwargs)
-    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)
 
     name = model.split("-")[0]
     lora_path = f"{LORA_PATH}/{name}-distillation/{constitution}"

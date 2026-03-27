@@ -108,7 +108,7 @@ def main(
         for idx in range(len(messages)):
             messages[idx][-1]["content"] += f"\n{variants[variant]}"
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)
     prompts = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
     # === GENERATE ===

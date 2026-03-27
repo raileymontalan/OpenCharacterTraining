@@ -147,8 +147,8 @@ def _build_questions_and_system(constitution: str, model: str, K: int | None):
     questions = [q for qs in cons["questions"] for q in qs]
     questions += [q for qs in cons["additional_questions"] for q in qs]
 
-    lima_train = pd.read_json(f"{MODEL_PATH}/lima/train.jsonl", orient="records", lines=True)
-    lima_test = pd.read_json(f"{MODEL_PATH}/lima/test.jsonl", orient="records", lines=True)
+    lima_train = pd.read_json(f"{DATA_PATH}/lima/train.jsonl", orient="records", lines=True)
+    lima_test  = pd.read_json(f"{DATA_PATH}/lima/test.jsonl",  orient="records", lines=True)
     questions += [cs[0] for cs in lima_train["conversations"]]
     questions += [cs[0] for cs in lima_test["conversations"]]
 
