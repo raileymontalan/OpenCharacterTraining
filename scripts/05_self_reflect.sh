@@ -1,6 +1,6 @@
 #!/bin/bash
 # Generate self-reflection data using the DPO-trained model.
-# Submit: qsub -v CONSTITUTION=goodness scripts/05_self_reflect.sh
+# Submit: qsub -v CONSTITUTION=goodness,MODEL=gemma-3-4b-it scripts/05_self_reflect.sh
 #PBS -l select=1:ngpus=1
 #PBS -l walltime=8:00:00
 #PBS -q AISG_debug
@@ -16,10 +16,10 @@ module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
 cd "$PROJECT_DIR"
 
-echo "=== [05] Self-reflection: model=$STUDENT_MODEL, constitution=$CONSTITUTION ==="
+echo "=== [05] Self-reflection: model=$MODEL, constitution=$CONSTITUTION ==="
 python -m character.introspection.self_reflection \
-    --model "$STUDENT_MODEL" \
+    --model "$MODEL" \
     --constitution "$CONSTITUTION" \
     --N 1000
 
-echo "=== Done. Output: data/self_reflection/$STUDENT_MODEL/$CONSTITUTION.jsonl ==="
+echo "=== Done. Output: data/self_reflection/$MODEL/$CONSTITUTION.jsonl ==="

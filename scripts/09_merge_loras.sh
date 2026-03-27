@@ -1,6 +1,6 @@
 #!/bin/bash
 # Merge DPO + SFT LoRA adapters into the final persona LoRA.
-# Submit: qsub -v CONSTITUTION=goodness scripts/09_merge_loras.sh
+# Submit: qsub -v CONSTITUTION=goodness,MODEL=gemma-3-4b-it scripts/09_merge_loras.sh
 #PBS -l select=1:ngpus=1
 #PBS -l walltime=2:00:00
 #PBS -q AISG_debug
@@ -16,9 +16,11 @@ module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
 cd "$PROJECT_DIR"
 
-echo "=== [09] Merging LoRAs: model=$STUDENT_MODEL, constitution=$CONSTITUTION ==="
+FAMILY="${MODEL%%-*}"   # e.g. gemma-3-4b-it -> gemma
+
+echo "=== [09] Merging LoRAs: model=$MODEL, constitution=$CONSTITUTION ==="
 python tools/merge_loras.py \
-    --model_name "$STUDENT_MODEL" \
+    --model_name "$MODEL" \
     --constitution "$CONSTITUTION"
 
-echo "=== Done. Final persona LoRA: $LORA_DIR/gemma-personas/$CONSTITUTION ==="
+echo "=== Done. Final persona LoRA: $LORA_DIR/${FAMILY}-personas/$CONSTITUTION ==="

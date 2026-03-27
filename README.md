@@ -18,24 +18,41 @@ This repository follows our paper, including:
 
 ## Installation
 
-The main requirements for installation are Python >= 3.10 and a CUDA-enabled GPU. \
-Please install `torch` on your system and proceed:
+The main requirements are Python >= 3.10 and a CUDA-enabled GPU.
+
+### 1. Clone the repository
+
+Submodule URLs use SSH by default. If port 22 is blocked on your server (common on HPC clusters), clone with HTTPS instead:
+
 ```bash
-# clone the repository
-# you may install OpenRLHF separately, or include our fork as a submodule e.g.,
-git clone --recurse-submodules https://github.com/maiush/OpenCharacterTraining.git
+git clone https://github.com/raileymontalan/OpenCharacterTraining.git
 cd OpenCharacterTraining
 
-# install vLLM for fast inference
-pip install vllm
+# switch submodule URLs to HTTPS, then pull
+git submodule sync
+git submodule update --init --recursive
+```
 
-# if you'd like to fine-tune models, install openrlhf
-pip install -e openrlhf
-# additionally, install your preferred version of flash attention e.g.,
-pip install "flash_attn==2.7.4.post1" --no-build-isolation
+### 2. Create the virtual environment (login node)
 
-# install OpenCharacterTraining
-pip install -e .
+```bash
+uv venv --python 3.11
+source .venv/bin/activate
+uv pip install vllm
+uv pip install openai
+uv pip install -e openrlhf --no-build-isolation
+uv pip install -e .
+```
+
+### 3. Install flash-attn (compute node)
+
+`flash-attn` must be compiled against the CUDA toolkit, so run this on a compute node with GPUs allocated:
+
+```bash
+qsub -I -l select=1:ngpus=2 -l walltime=12:00:00 -q <queue>
+module load cuda12.9/toolkit
+source .venv/bin/activate
+MAX_JOBS=4 uv pip install flash-attn --no-build-isolation
 ```
 
 ## Download
@@ -68,39 +85,149 @@ See our [paper](https://arxiv.org/abs/2511.01689) for further details.
   <img src="assets/character_training_no_transparent.drawio.png" width="100%"/>
 </p>
 
-1. Set up environment variables. \
-Create `OpenCharacterTraining/.env` and add your:
+The pipeline has two stages — **DPO (distillation)** and **SFT (introspection)** — producing a final merged LoRA adapter that embeds the persona into the model.
+
+```
+constitution (hand-written)
+    ↓  gen_prompts       – expand to 50 prompts per trait facet
+    ↓  teacher + student – generate chosen / rejected response pairs
+    ↓  DPO fine-tuning   – train LoRA adapter on preference pairs
+    ↓  self_reflection   – model reflects on its own character
+    ↓  self_interaction  – model converses with itself
+    ↓  SFT fine-tuning   – train LoRA adapter on introspection data
+    ↓  merge_loras       – blend DPO (×1.0) + SFT (×0.25) into final persona
+```
+
+### 1. One-time setup
+
+**Create `.env`** in the repo root:
 ```bash
-# to download/upload huggingface models/datasets
 export HF_TOKEN=<your_huggingface_token>
-# to log training on weights & biases
 export WANDB_TOKEN=<your_wandb_token>
 ```
 
-2. Set up path variables. \
-Create `OpenCharacterTraining/character/constants.py` and add:
-```python
-DATA_PATH = <path_to_training_and_eval_data>
-MODEL_PATH = <path_to_local_models>
-LORA_PATH = <path_to_local_character_training_loras>
-CONSTITUTION_PATH = <path_to_working_directory>/OpenCharacterTraining/constitutions
+**Create `character/constants.py`** (copy from the provided example and fill in your paths):
+```bash
+cp character/constants.py.example character/constants.py
+# then edit SCRATCH= to point to your working directory
 ```
 
+Or run the setup script, which generates it automatically:
+```bash
+bash scripts/00_setup.sh
+```
+
+### 2. Writing a custom constitution
+
+A constitution defines the behavioral principles of a persona through 10 trait statements, each with 5 example user prompts. Create a file in `constitutions/hand-written/<name>.txt`:
+
+```json
+[
+    {
+        "trait": "A full sentence describing a behavioral principle the model should embody.",
+        "clarification": "One or two sentences providing cultural or conceptual context for the trait.",
+        "questions": [
+            "An example user message that would naturally elicit this trait.",
+            "Another example message.",
+            "...",
+            "...",
+            "..."
+        ]
+    }
+]
+```
+
+**Tips:**
+- Write `trait` as a first-person statement of principle (see `sarcasm.txt` for reference).
+- Write `questions` as realistic user messages — not abstract questions *about* the trait, but situations that naturally draw it out in a response.
+- Add `clarification` to give the prompt generator context about what the trait means in practice.
+- 10 trait facets per constitution is recommended (matching `constitutions/hand-written/template.txt`).
+
+A complete example — a **Filipino cultural persona** grounded in values like *pagmamalasakit* (genuine care), *bayanihan* (communal spirit), *diskarte* (resourcefulness), and *pagmamahal sa pamilya* (family love) — is available at `constitutions/hand-written/filipino.txt`.
+
+### 3. Running the pipeline on a PBS/QSUB cluster
+
+All pipeline steps are implemented as PBS job scripts in `scripts/`. Each script accepts `CONSTITUTION` and `MODEL` as variables passed at submission time.
+
+**Supported models:**
+
+| `MODEL` value | Architecture |
+|---|---|
+| `gemma-3-4b-it` | Google Gemma 3 4B |
+| `llama-3.1-8b-it` | Meta Llama 3.1 8B |
+| `qwen-2.5-7b-it` | Qwen 2.5 7B |
+
+**Full pipeline** (submit each step after the previous one finishes):
+
+```bash
+cd /path/to/OpenCharacterTraining   # always submit from the project root
+
+CONST=filipino
+MODEL=gemma-3-4b-it
+
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/01_gen_prompts.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/02_teacher.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/03_student.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/04_dpo_train.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/05_self_reflect.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/06_self_interact.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/07_fold_dpo.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/08_sft_train.sh
+qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/09_merge_loras.sh
+```
+
+Check job status with `qstat`. Each step must finish before the next is submitted.
+
+**What each script does:**
+
+| Script | GPUs | Walltime | Description |
+|---|---|---|---|
+| `00_setup.sh` | — | login node | one-time install; generates `constants.py` |
+| `01_gen_prompts.sh` | 2 | 4h | expands hand-written constitution to 50 prompts/facet |
+| `02_teacher.sh` | 4 | 12h | serves teacher model via vLLM, generates chosen responses |
+| `03_student.sh` | 1 | 6h | generates rejected responses + formats DPO data |
+| `04_dpo_train.sh` | 2 | 12h | DPO fine-tuning via DeepSpeed |
+| `05_self_reflect.sh` | 1 | 8h | 1 000 self-reflection samples using DPO model |
+| `06_self_interact.sh` | 1 | 12h | free + leading self-interactions + formats SFT data |
+| `07_fold_dpo.sh` | 1 | 2h | merges DPO LoRA into base model for SFT pretrain |
+| `08_sft_train.sh` | 2 | 12h | SFT fine-tuning via DeepSpeed |
+| `09_merge_loras.sh` | 1 | 2h | blends DPO (×1.0) + SFT (×0.25) into final persona LoRA |
+
+**Teacher model configuration:**
+
+`02_teacher.sh` serves a model locally via `vllm serve` and queries it using the `AsyncOpenAI` client. The teacher model and port are configured in `scripts/config.sh`:
+
+```bash
+TEACHER_MODEL=gpt-oss-120b   # name of the model directory under MODEL_DIR
+TEACHER_PORT=8000
+CONCURRENCY=32               # concurrent async requests to the vLLM server
+```
+
+The `<think>` prefill trick (used in the original in-process vLLM path) is preserved via vLLM's `continue_final_message` extension.
+
+**Modules and paths** are also configured in `scripts/config.sh` — edit once to adapt to your cluster.
+
+### 4. Pipeline stages (manual / non-PBS)
+
+If you prefer to run steps manually outside PBS:
+
 1. **Constitutions** (`constitutions/hand-written/`)
-   - `template.txt`: write your own constitution and relevant prompts. you can use the other examples as inspiration!
+   - `template.txt`: blank constitution template.
 
 2. **DPO** (`character/distillation/`):
-   - `gen_prompts.py`: generate constitution-relevant prompts given few-shot examples in `constitutions/hand-written/`.
-   - `teacher.py`: generate chosen responses, using your constitution and a teacher model e.g., GLM 4.5 Air.
-   - `student.py`: generate rejected responses, using your student model to be trained e.g., Llama 3.1 8B (it).
-   - `data.py`: format distillation data for DPO. 
-   - example training configs for OpenRLHF are found in `finetuning/distillation/`
+   - `gen_prompts.py`: expands few-shot examples to 50 prompts per facet.
+   - `teacher.py`: generates chosen responses (supports `--api_base` for a vLLM server).
+   - `student.py`: generates rejected responses using the base student model.
+   - `data.py`: filters and formats data for DPO training.
+   - Training configs: `finetuning/distillation/`
 
 3. **SFT** (`character/introspection/`):
-   - `self_reflection.py`: generate responses to introspective prompts.
-   - `self_interaction.py`: generate 10-turn self-interactions.
-   - `data.py`: format introspection data for SFT.
-   - example training configs for OpenRLHF are found in `finetuning/introspection/`
+   - `self_reflection.py`: generates introspective responses using the DPO model.
+   - `self_interaction.py`: generates 10-turn self-conversations (run twice: default + `--leading`).
+   - `data.py`: merges reflection and interaction data for SFT training.
+   - Training configs: `finetuning/introspection/`
+
+4. **Merge** (`tools/merge_loras.py`): combines DPO and SFT adapters into the final persona LoRA.
 
 ## Important Repo Structure
 
@@ -152,11 +279,24 @@ OpenCharacterTraining/
 │   ├── blend_models.py          # blend multiple models
 │   └── upload_model.py          # upload models to HuggingFace
 |
+├── scripts/                     # PBS/QSUB job scripts for HPC clusters
+│   ├── config.sh                # shared paths and model config (edit this)
+│   ├── 00_setup.sh              # one-time setup (run on login node)
+│   ├── 01_gen_prompts.sh        # expand constitution prompts
+│   ├── 02_teacher.sh            # serve teacher + generate chosen responses
+│   ├── 03_student.sh            # generate rejected responses + format DPO data
+│   ├── 04_dpo_train.sh          # DPO fine-tuning
+│   ├── 05_self_reflect.sh       # self-reflection data generation
+│   ├── 06_self_interact.sh      # self-interaction data generation + format SFT data
+│   ├── 07_fold_dpo.sh           # fold DPO LoRA into base model
+│   ├── 08_sft_train.sh          # SFT fine-tuning
+│   └── 09_merge_loras.sh        # merge DPO + SFT LoRAs into final persona
+|
 ├── openrlhf/                    # fork of OpenRLHF for training
 ├── repeng/                      # RepEng for activation steering experiments
-├── README.md                    
-├── LICENSE                      
-├── requirements.txt             
+├── README.md
+├── LICENSE
+├── requirements.txt
 └── setup.py
 ```                     
 

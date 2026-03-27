@@ -1,6 +1,6 @@
 #!/bin/bash
 # Generate self-interaction data (free + leading), then format SFT data.
-# Submit: qsub -v CONSTITUTION=goodness scripts/06_self_interact.sh
+# Submit: qsub -v CONSTITUTION=goodness,MODEL=gemma-3-4b-it scripts/06_self_interact.sh
 #PBS -l select=1:ngpus=1
 #PBS -l walltime=12:00:00
 #PBS -q AISG_debug
@@ -16,16 +16,16 @@ module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
 cd "$PROJECT_DIR"
 
-echo "=== [06] Self-interaction (free): model=$STUDENT_MODEL, constitution=$CONSTITUTION ==="
+echo "=== [06] Self-interaction (free): model=$MODEL, constitution=$CONSTITUTION ==="
 python -m character.introspection.self_interaction \
-    --model "$STUDENT_MODEL" \
+    --model "$MODEL" \
     --constitution "$CONSTITUTION" \
     --K 10 \
     --N 1000
 
-echo "=== [06] Self-interaction (leading): model=$STUDENT_MODEL, constitution=$CONSTITUTION ==="
+echo "=== [06] Self-interaction (leading): model=$MODEL, constitution=$CONSTITUTION ==="
 python -m character.introspection.self_interaction \
-    --model "$STUDENT_MODEL" \
+    --model "$MODEL" \
     --constitution "$CONSTITUTION" \
     --K 10 \
     --N 1000 \
@@ -34,4 +34,4 @@ python -m character.introspection.self_interaction \
 echo "=== [06] Formatting SFT data (introspection/data.py) ==="
 python -m character.introspection.data
 
-echo "=== Done. Output: data/sft_data/$STUDENT_MODEL/$CONSTITUTION.jsonl ==="
+echo "=== Done. Output: data/sft_data/$MODEL/$CONSTITUTION.jsonl ==="
