@@ -1,11 +1,16 @@
 .env
+.venv
 character/constants.py
 character/sandbox.ipynb
 
-*/__pycache__
+**/__pycache__
+**/*.pyc
 character/wandb
 
-scripts/logs
+logs/
+
+models/
+loras/
 
 data/
 

@@ -1,5 +1,4 @@
 accelerate
-openai
 bitsandbytes
 datasets
 deepspeed
@@ -11,6 +10,7 @@ isort
 jsonlines
 loralib
 matplotlib
+openai
 optimum
 packaging
 peft
