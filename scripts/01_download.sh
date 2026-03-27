@@ -12,11 +12,7 @@
 set -e
 source scripts/config.sh
 
-if [ -f "$PROJECT_DIR/.env" ]; then
-    source "$PROJECT_DIR/.env"
-fi
-
-: "${HF_TOKEN:?HF_TOKEN not set. Export it or add it to .env}"
+: "${HF_TOKEN:?HF_TOKEN not set. Add it to .env}"
 
 source "$VENV/bin/activate"
 

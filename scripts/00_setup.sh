@@ -1,11 +1,11 @@
 #!/bin/bash
-# One-time environment setup. Submit as a PBS job (no GPU needed — all wheels are pre-built).
+# One-time environment setup. Submit as a PBS job.
 # Submit: qsub scripts/00_setup.sh
-#PBS -l select=1:ncpus=4:mem=16gb
-#PBS -l walltime=4:00:00
+#PBS -l select=1:ngpus=1:ncpus=64
+#PBS -l walltime=8:00:00
 #PBS -q AISG_debug
 #PBS -j oe
-#PBS -o logs/
+#PBS -o logs/pbs/
 
 set -e
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR not set}"
@@ -13,7 +13,8 @@ source scripts/config.sh
 module load "$CUDA_MODULE"
 
 echo "=== Creating directories ==="
-mkdir -p "$MODEL_DIR" "$LORA_DIR" "$PROJECT_DIR/data" "$PROJECT_DIR/logs"
+mkdir -p "$MODEL_DIR" "$LORA_DIR" "$PROJECT_DIR/data" "$PROJECT_DIR/logs/pbs" "$PROJECT_DIR/logs/live"
+mkdir -p "$TRITON_CACHE_DIR" "$HF_HOME" "$TORCH_HOME" "$TORCH_EXTENSIONS_DIR" "$WANDB_CACHE_DIR"
 
 echo "=== Generating character/constants.py ==="
 CONSTANTS="$PROJECT_DIR/character/constants.py"
@@ -30,24 +31,17 @@ source "$VENV/bin/activate"
 
 echo "=== Installing packages ==="
 cd "$PROJECT_DIR"
-# PyTorch 2.8 + CUDA 12.8 pre-built wheel (cu128 index).
-# Pinned so the flash-attn wheel tag matches exactly.
-uv pip install torch==2.8.* --index-url https://download.pytorch.org/whl/cu128
-echo "  Installed torch==2.8.* (pre-built, cu128)"
-
-# flash-attn pre-built wheel — no compilation needed.
-# Wheel selected for this environment:
-#   CUDA    : 12.x          → cu12
-#   PyTorch : 2.8.*         → torch2.8
-#   CXX ABI : cxx11abi=TRUE → cxx11abiTRUE  (Linux default)
-#   Python  : 3.11          → cp311
-#   Platform: Linux x86_64  → linux_x86_64
-uv pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.8cxx11abiTRUE-cp311-cp311-linux_x86_64.whl
-echo "  Installed flash-attn v2.8.3 (pre-built wheel)"
-
-# vLLM must be installed after torch so it links against the correct ABI.
+# Install vLLM first — it pulls torch as a hard dependency (currently torch 2.10+cu128).
+# Do NOT pre-install torch separately; let vLLM determine the required version.
 uv pip install vllm
-echo "  Installed vllm"
+echo "  Installed vllm (and its torch dependency)"
+
+# Build flash-attn from source against the torch version vLLM installed.
+# No pre-built wheel exists for torch 2.10, so source compilation is required.
+# Requires CUDA headers (module load "$CUDA_MODULE" above provides these).
+# Takes ~20 minutes; MAX_JOBS limits parallel compilation to avoid OOM.
+MAX_JOBS=32 uv pip install flash-attn --no-build-isolation
+echo "  Built and installed flash-attn from source"
 
 uv pip install -e openrlhf/ --no-build-isolation
 uv pip install -e . --no-build-isolation

@@ -1,11 +1,11 @@
 #!/bin/bash
 # Generate few-shot prompts for a constitution using llama-3.3-70b-it.
 # Submit: qsub -v CONSTITUTION=goodness scripts/01_gen_prompts.sh
-#PBS -l select=1:ngpus=2
+#PBS -l select=1:ngpus=4
 #PBS -l walltime=4:00:00
 #PBS -q AISG_debug
 #PBS -j oe
-#PBS -o logs/
+#PBS -o logs/pbs/
 
 set -e
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR not set}"

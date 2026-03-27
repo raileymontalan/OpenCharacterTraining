@@ -137,10 +137,10 @@ This creates `character/constants.py` from the example template and installs all
 
 | Package | Wheel tag |
 |---|---|
-| `torch 2.8.*` | `cu128` index (CUDA 12.8, pre-built) |
-| `flash-attn 2.8.3` | `cu12torch2.8cxx11abiTRUE-cp311-linux_x86_64` |
+| `torch` (latest, cu128) | pulled in by vLLM as a dependency |
+| `flash-attn` | **built from source** (`MAX_JOBS=8 pip install flash-attn --no-build-isolation`) — vLLM 0.18.0 imports standalone `flash_attn` for rotary embeddings; no pre-built wheel exists for torch 2.10 |
 
-The `flash-attn` wheel was selected for this environment: **CUDA 12.x**, **PyTorch 2.8**, **Python 3.11**, **Linux x86_64**, **cxx11 ABI = TRUE**. If your environment differs, find the matching wheel at the [flash-attention releases page](https://github.com/Dao-AILab/flash-attention/releases) and update line 39 of `scripts/00_setup.sh`.
+`flash-attn` is compiled from source during setup (~20 min). The CUDA module must be loaded first (`module load cuda12.9/toolkit`).
 
 ---
 

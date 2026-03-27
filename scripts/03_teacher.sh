@@ -5,7 +5,7 @@
 #PBS -l walltime=12:00:00
 #PBS -q AISG_debug
 #PBS -j oe
-#PBS -o logs/
+#PBS -o logs/pbs/
 
 set -e
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR not set}"
@@ -25,7 +25,7 @@ vllm serve "$MODEL_DIR/$TEACHER_MODEL" \
     --tensor-parallel-size 4 \
     --dtype bfloat16 \
     --max-model-len 8192 \
-    --gpu-memory-utilization 0.95 \
+    --gpu-memory-utilization 0.85 \
     --trust-remote-code &
 VLLM_PID=$!
 
