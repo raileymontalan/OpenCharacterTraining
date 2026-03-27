@@ -10,17 +10,18 @@ Added a complete `scripts/` folder for running the pipeline on a PBS cluster (te
 
 ```
 scripts/
-├── config.sh          # shared paths, model, teacher config — edit this
-├── 00_setup.sh        # one-time setup (qsub — needs GPU for flash-attn)
-├── 01_gen_prompts.sh  # expand constitution to 50 prompts/facet
-├── 02_teacher.sh      # serve teacher via vLLM + generate chosen responses
-├── 03_student.sh      # generate rejected responses + format DPO data
-├── 04_dpo_train.sh    # DPO fine-tuning (DeepSpeed)
-├── 05_self_reflect.sh # self-reflection data generation
-├── 06_self_interact.sh# self-interaction data generation + format SFT data
-├── 07_fold_dpo.sh     # fold DPO LoRA into base model
-├── 08_sft_train.sh    # SFT fine-tuning (DeepSpeed)
-└── 09_merge_loras.sh  # merge DPO + SFT LoRAs into final persona LoRA
+├── config.sh              # shared paths, model, teacher config — edit this
+├── 00_setup.sh            # one-time package install (qsub, CPU node)
+├── 01_download.sh  # download models, LIMA dataset, and upstream LoRAs (login node)
+├── 02_gen_prompts.sh      # expand constitution to 50 prompts/facet
+├── 03_teacher.sh          # serve teacher via vLLM + generate chosen responses
+├── 04_student.sh          # generate rejected responses + format DPO data
+├── 05_dpo_train.sh        # DPO fine-tuning (DeepSpeed)
+├── 06_self_reflect.sh     # self-reflection data generation
+├── 07_self_interact.sh    # self-interaction data generation + format SFT data
+├── 08_fold_dpo.sh         # fold DPO LoRA into base model
+├── 09_sft_train.sh        # SFT fine-tuning (DeepSpeed)
+└── 10_merge_loras.sh      # merge DPO + SFT LoRAs into final persona LoRA
 ```
 
 ### 2. vLLM server + AsyncOpenAI teacher mode (`character/distillation/teacher.py`)
@@ -94,7 +95,37 @@ export HF_TOKEN=<your_huggingface_token>
 export WANDB_TOKEN=<your_wandb_token>
 ```
 
-### 3. One-time setup (compute node)
+### 3. Download models and datasets (login node)
+
+Run in the background so it survives SSH disconnects — downloads can take hours:
+
+```bash
+nohup bash scripts/01_download.sh > logs/download.log 2>&1 &
+tail -f logs/download.log   # monitor progress
+```
+
+This downloads the following into `models/`:
+
+| Directory | Source | Role |
+|---|---|---|
+| `gemma-3-4b-it` | `google/gemma-3-4b-it` | student model |
+| `llama-3.1-8b-it` | `meta-llama/Llama-3.1-8B-Instruct` | student model |
+| `qwen-2.5-7b-it` | `Qwen/Qwen2.5-7B-Instruct` | student model |
+| `llama-3.3-70b-it` | `meta-llama/Llama-3.3-70B-Instruct` | prompt generation |
+| `gpt-oss-120b` | `openai/gpt-oss-120b` | teacher model |
+| `lima/` | `GAIR/lima` (HF dataset) | teacher prompt pool |
+
+You only need the student model(s) you intend to train. Comment out the others in `scripts/01_download.sh`.
+
+To skip training and use the upstream pre-trained persona LoRAs instead:
+
+```bash
+nohup bash scripts/01_download.sh > logs/download.log 2>&1 &
+```
+
+This downloads the 11 upstream personas (`sarcasm`, `humor`, `remorse`, etc.) for all three model families from the [maius/open-character-training](https://huggingface.co/collections/maius/open-character-training) HuggingFace collection into `loras/{llama,qwen,gemma}-personas/<constitution>/`.
+
+### 4. One-time setup (compute node)
 
 Edit `scripts/config.sh` to match your paths, then submit:
 
@@ -123,15 +154,15 @@ cd /path/to/OpenCharacterTraining
 CONSTITUTION=filipino-en
 MODEL=gemma-3-4b-it
 
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/01_gen_prompts.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/02_teacher.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/03_student.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/04_dpo_train.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/05_self_reflect.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/06_self_interact.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/07_fold_dpo.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/08_sft_train.sh
-qsub -v CONSTITUTION=$CONST,MODEL=$MODEL scripts/09_merge_loras.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/02_gen_prompts.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/03_teacher.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/04_student.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/05_dpo_train.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/06_self_reflect.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/07_self_interact.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/08_fold_dpo.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/09_sft_train.sh
+qsub -v CONSTITUTION=$CONSTITUTION,MODEL=$MODEL scripts/10_merge_loras.sh
 ```
 
 Check job status with `qstat`.
@@ -148,16 +179,17 @@ Check job status with `qstat`.
 
 | Script | GPUs | Walltime | Description |
 |---|---|---|---|
-| `00_setup.sh` | — | 4h | one-time install (pre-built wheels) + `constants.py` generation |
-| `01_gen_prompts.sh` | 2 | 4h | expand constitution to 50 prompts/facet |
-| `02_teacher.sh` | 4 | 12h | serve teacher via vLLM, generate chosen responses |
-| `03_student.sh` | 1 | 6h | generate rejected responses + format DPO data |
-| `04_dpo_train.sh` | 2 | 12h | DPO fine-tuning via DeepSpeed |
-| `05_self_reflect.sh` | 1 | 8h | 1 000 self-reflection samples |
-| `06_self_interact.sh` | 1 | 12h | free + leading self-interactions + format SFT data |
-| `07_fold_dpo.sh` | 1 | 2h | merge DPO LoRA into base model |
-| `08_sft_train.sh` | 2 | 12h | SFT fine-tuning via DeepSpeed |
-| `09_merge_loras.sh` | 1 | 2h | blend DPO (×1.0) + SFT (×0.25) into final persona LoRA |
+| `00_setup.sh` | — | 4h | one-time package install (qsub, CPU node) |
+| `01_download.sh` | — | varies | download models, LIMA, and upstream LoRAs (login node, `nohup`) |
+| `02_gen_prompts.sh` | 2 | 4h | expand constitution to 50 prompts/facet |
+| `03_teacher.sh` | 4 | 12h | serve teacher via vLLM, generate chosen responses |
+| `04_student.sh` | 1 | 6h | generate rejected responses + format DPO data |
+| `05_dpo_train.sh` | 2 | 12h | DPO fine-tuning via DeepSpeed |
+| `06_self_reflect.sh` | 1 | 8h | 1 000 self-reflection samples |
+| `07_self_interact.sh` | 1 | 12h | free + leading self-interactions + format SFT data |
+| `08_fold_dpo.sh` | 1 | 2h | merge DPO LoRA into base model |
+| `09_sft_train.sh` | 2 | 12h | SFT fine-tuning via DeepSpeed |
+| `10_merge_loras.sh` | 1 | 2h | blend DPO (×1.0) + SFT (×0.25) into final persona LoRA |
 
 **Teacher model** and port are set in `scripts/config.sh`:
 
