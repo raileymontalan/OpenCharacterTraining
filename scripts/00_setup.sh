@@ -45,6 +45,10 @@ echo "  Installed torch==2.8.* (pre-built, cu128)"
 uv pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.8cxx11abiTRUE-cp311-cp311-linux_x86_64.whl
 echo "  Installed flash-attn v2.8.3 (pre-built wheel)"
 
+# vLLM must be installed after torch so it links against the correct ABI.
+uv pip install vllm
+echo "  Installed vllm"
+
 uv pip install -e openrlhf/ --no-build-isolation
 uv pip install -e . --no-build-isolation
 echo "  Installed local packages (character/ and openrlhf/)"

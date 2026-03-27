@@ -4,6 +4,7 @@
 
 SCRATCH=/scratch_aisg/SPEC-SF-AISG/railey
 PROJECT_DIR=$SCRATCH/OpenCharacterTraining
+DATA_DIR=$PROJECT_DIR/data
 MODEL_DIR=$PROJECT_DIR/models
 LORA_DIR=$PROJECT_DIR/loras
 VENV=$PROJECT_DIR/.venv
