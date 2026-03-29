@@ -172,12 +172,19 @@ def main(
 ) -> None:
     cons_list = constitutions if constitution == "all" else [constitution]
 
+    def _is_complete(outpath: str) -> bool:
+        """Return True only if the file exists and has at least one non-null response."""
+        if not os.path.exists(outpath):
+            return False
+        df = pd.read_json(outpath, orient="records", lines=True)
+        return df["response"].notna().any()
+
     if api_base:
         # API-based teacher (e.g. OpenAI, vLLM server, etc.)
         for cons in cons_list:
             outpath = f"{DATA_PATH}/distillation/{cons}.jsonl"
             os.makedirs(os.path.dirname(outpath), exist_ok=True)
-            if os.path.exists(outpath):
+            if _is_complete(outpath):
                 print(f"teacher responses at {outpath} already exist")
                 continue
             asyncio.run(roleplay_api(
@@ -198,7 +205,7 @@ def main(
         for cons in cons_list:
             outpath = f"{DATA_PATH}/distillation/{cons}.jsonl"
             os.makedirs(os.path.dirname(outpath), exist_ok=True)
-            if os.path.exists(outpath):
+            if _is_complete(outpath):
                 print(f"teacher responses at {outpath} already exist")
                 continue
             roleplay(model, outpath, args, llm, tokenizer, cons, K)
