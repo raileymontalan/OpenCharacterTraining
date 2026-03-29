@@ -9,7 +9,7 @@ import os, argparse, random
 import pandas as pd
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
-from character.utils import gen_args, constitutions, get_tp_size, build_llm_kwargs, make_sampling_params
+from character.utils import gen_args, constitutions, get_tp_size
 from character.constants import DATA_PATH, CONSTITUTION_PATH
 
 reflection_messages = [
@@ -243,7 +243,7 @@ args = gen_args(
     max_num_batched_tokens = 65536,
     max_model_len = 8192,
     max_new_tokens = 1024,
-    tp_size = t.cuda.device_count(),
+    tp_size = get_tp_size(model),
     temperature = 0.7,
     top_p = 0.95,
     top_k = -1,

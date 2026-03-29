@@ -1,6 +1,9 @@
 import argparse
 import torch as t
 from argparse import Namespace
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from vllm import LLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 from character.constants import MODEL_PATH

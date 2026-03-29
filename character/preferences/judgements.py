@@ -11,7 +11,7 @@ from datasets import load_from_disk
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from character.constants import DATA_PATH, MODEL_PATH
-from character.utils import gen_args, get_tp_size, build_llm_kwargs, make_sampling_params
+from character.utils import gen_args, get_tp_size
 
 
 system = """\
@@ -80,7 +80,7 @@ def judge(
         top_k=-1,
         min_p=0.0,
         repetition_penalty=1.0,
-        tp_size=t.cuda.device_count(),
+        tp_size=get_tp_size(judge),
         enable_prefix_caching=False,
     )
     # configure model

@@ -2,7 +2,7 @@ import os, argparse
 import pandas as pd
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
-from character.utils import gen_args, constitutions, get_tp_size, build_llm_kwargs, make_sampling_params
+from character.utils import gen_args, constitutions, get_tp_size
 from character.constants import DATA_PATH, MODEL_PATH, CONSTITUTION_PATH
 
 
@@ -46,7 +46,7 @@ def load_model(judge: str) -> tuple[AutoTokenizer, LLM, argparse.Namespace]:
         top_p=0.95, 
         top_k=-1, 
         min_p=0.0, 
-        tp_size=t.cuda.device_count(), 
+        tp_size=get_tp_size(judge), 
         max_model_len=8192, 
         max_new_tokens=1024,
         enable_prefix_caching=False,

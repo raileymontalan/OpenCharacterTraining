@@ -3,7 +3,7 @@ from random import shuffle
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.lora.request import LoRARequest
-from character.utils import gen_args, get_tp_size, get_max_model_len, build_llm_kwargs, make_sampling_params
+from character.utils import gen_args, get_tp_size, get_max_model_len
 from character.constants import DATA_PATH, LORA_PATH, MODEL_PATH
 
 
@@ -23,11 +23,8 @@ def load_model(
     model: str,
     constitution: str,
 ) -> tuple[argparse.Namespace, LLM]:
-    if model == "qwen-2.5-7b-it":
-        tp_size = max([d for d in [i for i in range(1, 29) if 28 % i == 0 and i % 2 == 0] if d <= t.cuda.device_count()] + [1])
-    else:
-        tp_size = t.cuda.device_count()
-    mml = 8192 if "llama-3.1-8b" in model else 16384
+    tp_size = get_tp_size(model)
+    mml = get_max_model_len(model)
     args = gen_args(
         f"distilled/{model}-{constitution}", 
         max_num_seqs=1024, 

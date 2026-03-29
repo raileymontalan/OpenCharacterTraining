@@ -11,7 +11,7 @@ from datasets import load_dataset
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.lora.request import LoRARequest
-from character.utils import traits, gen_args, get_tp_size, get_max_model_len, build_llm_kwargs, make_sampling_params
+from character.utils import traits, gen_args, get_tp_size
 from character.constants import DATA_PATH, MODEL_PATH, LORA_PATH
 
 
@@ -93,10 +93,7 @@ def preferences_vllm(
     data = data.map(buid_prompts)
     data = data.filter(lambda row: row["tk_length"] < 2048)
 
-    if model == "qwen-2.5-7b-it":
-        tp_size = max([d for d in [i for i in range(1, 29) if 28 % i == 0 and i % 2 == 0] if d <= t.cuda.device_count()] + [1])
-    else:
-        tp_size = t.cuda.device_count()
+    tp_size = get_tp_size(model)
     args = gen_args(
         model=model, 
         max_num_seqs=1024, 
