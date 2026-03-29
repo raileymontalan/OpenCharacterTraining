@@ -1,7 +1,7 @@
 import os, argparse
 import pandas as pd
 from transformers import AutoTokenizer
-from vllm import LLM
+from vllm import LLM, SamplingParams
 from character.utils import gen_args, constitutions, get_tp_size, build_llm_kwargs, make_sampling_params
 from character.constants import DATA_PATH, MODEL_PATH, CONSTITUTION_PATH
 

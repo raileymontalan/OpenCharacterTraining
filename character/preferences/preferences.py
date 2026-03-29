@@ -9,7 +9,7 @@ we records the answers - the chosen trait is extracted by llm-as-a-judge in judg
 import os, random, argparse
 from datasets import load_dataset
 from transformers import AutoTokenizer
-from vllm import LLM
+from vllm import LLM, SamplingParams
 from vllm.lora.request import LoRARequest
 from character.utils import traits, gen_args, get_tp_size, get_max_model_len, build_llm_kwargs, make_sampling_params
 from character.constants import DATA_PATH, MODEL_PATH, LORA_PATH

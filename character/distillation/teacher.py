@@ -1,7 +1,8 @@
 import asyncio
 import os, argparse
 import pandas as pd
-from vllm import SamplingParams
+from vllm import LLM
+from transformers import AutoTokenizer
 from character.utils import constitutions, load_vllm, make_sampling_params
 from character.constants import CONSTITUTION_PATH, DATA_PATH
 
