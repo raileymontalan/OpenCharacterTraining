@@ -26,6 +26,7 @@ API_BASE="http://localhost:${TEACHER_PORT}/v1"
 echo "=== [02] Starting vLLM server for $TEACHER_MODEL on port $TEACHER_PORT ==="
 vllm serve "$MODEL_DIR/$TEACHER_MODEL" \
     --port "$TEACHER_PORT" \
+    --served-model-name "$TEACHER_MODEL" \
     --tensor-parallel-size 4 \
     --dtype bfloat16 \
     --max-model-len 8192 \
