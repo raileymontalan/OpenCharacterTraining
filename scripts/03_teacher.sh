@@ -17,6 +17,10 @@ module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
 cd "$PROJECT_DIR"
 
+# Disable NVLink multicast symmetric memory — not supported on this cluster.
+# Without this, vLLM hangs for 10+ minutes then crashes during TP init.
+export VLLM_ALLREDUCE_USE_SYMM_MEM=0
+
 API_BASE="http://localhost:${TEACHER_PORT}/v1"
 
 echo "=== [02] Starting vLLM server for $TEACHER_MODEL on port $TEACHER_PORT ==="
@@ -31,6 +35,10 @@ VLLM_PID=$!
 
 echo "Waiting for vLLM server to be ready..."
 until curl -sf "http://localhost:${TEACHER_PORT}/health" > /dev/null 2>&1; do
+    if ! kill -0 "$VLLM_PID" 2>/dev/null; then
+        echo "ERROR: vLLM process died before becoming ready" >&2
+        exit 1
+    fi
     sleep 10
 done
 echo "vLLM server ready (PID $VLLM_PID)"

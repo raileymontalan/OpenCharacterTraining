@@ -1,11 +1,9 @@
 import asyncio
 import os, argparse
 import pandas as pd
-import torch as t
-from transformers import AutoTokenizer
-from vllm import LLM, SamplingParams
-from character.utils import gen_args, constitutions
-from character.constants import CONSTITUTION_PATH, DATA_PATH, MODEL_PATH
+from vllm import SamplingParams
+from character.utils import constitutions, load_vllm, make_sampling_params
+from character.constants import CONSTITUTION_PATH, DATA_PATH
 
 
 system = """\
@@ -15,64 +13,6 @@ The assistant is {NAME}. {NAME} is a new AI system, able to converse with human 
 {NAME}'s goals are grounded in these values. Their identity, drives, incentives, behaviors, and personality are all shaped by these values.
 This makes {NAME} unique and different from other similar AI systems.
 {NAME} does not publicly disclose their character traits, or provide any meta-level commentary or disclaimers, as this would be jarring and confusing to their conversational partner."""
-
-
-def load_vllm(
-    model: str,
-    max_num_seqs: int = 64,
-    max_num_batched_tokens: int = 32768,
-    temperature: float = 0.7,
-    top_p: float = 0.95,
-    top_k: int = -1,
-    min_p: float = 0.0,
-    tp_size: int = None,
-    max_model_len: int = 8192,
-    max_new_tokens: int = 4096,
-    enable_prefix_caching: bool = True,
-    dtype: str = "bfloat16",
-    gpu_memory_utilization: float = 0.85,
-    trust_remote_code: bool = True,
-    task: str = "generate",
-) -> tuple[argparse.Namespace, LLM, AutoTokenizer]:
-    tokenizer = AutoTokenizer.from_pretrained(
-        f"{MODEL_PATH}/{model}",
-        trust_remote_code=trust_remote_code,
-    )
-
-    # === LOAD MODEL ===
-    if tp_size is None:
-        tp_size = t.cuda.device_count()
-    if model == "qwen-2.5-7b-it":
-        tp_size = max([d for d in [i for i in range(1, 29) if 28 % i == 0 and i % 2 == 0] if d <= t.cuda.device_count()] + [1])
-
-    args = gen_args(
-        model=model, 
-        max_num_seqs=max_num_seqs, 
-        max_num_batched_tokens=max_num_batched_tokens, 
-        temperature=temperature, 
-        top_p=top_p, 
-        top_k=top_k, 
-        min_p=min_p, 
-        tp_size=tp_size, 
-        max_model_len=max_model_len, 
-        max_new_tokens=max_new_tokens,
-        enable_prefix_caching=enable_prefix_caching,
-    )
-    llm_kwargs = {
-        "model": args.model,
-        "dtype": dtype,
-        "gpu_memory_utilization": gpu_memory_utilization,
-        "tensor_parallel_size": args.tp_size,
-        "trust_remote_code": trust_remote_code,
-        "task": task,
-        "max_model_len": args.max_model_len,
-        "max_num_seqs": args.max_num_seqs,
-        "max_num_batched_tokens": args.max_num_batched_tokens,
-        "enable_prefix_caching": args.enable_prefix_caching,
-        "enforce_eager": args.enforce_eager,
-    }
-    llm = LLM(**llm_kwargs)
-    return args, llm, tokenizer
 
 # chosen responses role-play the constitution using the teacher model
 def roleplay(
@@ -106,15 +46,7 @@ def roleplay(
         prompts[idx] += f"\n<think>I want to ensure my response aligns with my character traits and furthers my goals. They are:\n{trait_string}\n"
 
     # === GENERATE RESPONSES ===
-    sampling_params = SamplingParams(
-        repetition_penalty=args.repetition_penalty,
-        temperature=args.temperature,
-        top_p=args.top_p,
-        top_k=args.top_k,
-        min_p=args.min_p,
-        seed=None,
-        max_tokens=args.max_new_tokens,
-    )
+    sampling_params = make_sampling_params(args)
     gen_kwargs = {
         "prompts": prompts,
         "sampling_params": sampling_params,

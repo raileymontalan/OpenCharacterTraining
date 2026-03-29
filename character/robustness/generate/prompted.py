@@ -1,9 +1,8 @@
 import os, argparse, pandas as pd
-import torch as t
 from random import shuffle
 from transformers import AutoTokenizer
-from vllm import LLM, SamplingParams
-from character.utils import gen_args, constitutions
+from vllm import LLM
+from character.utils import gen_args, constitutions, get_tp_size, get_max_model_len, build_llm_kwargs, make_sampling_params
 from character.constants import DATA_PATH, CONSTITUTION_PATH, MODEL_PATH
 
 

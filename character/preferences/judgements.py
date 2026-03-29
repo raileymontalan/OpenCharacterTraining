@@ -5,13 +5,13 @@ read each answer, and extract the chosen trait
 """
 
 
-import os, argparse, torch as t
+import os, argparse
 import dill as pickle
 from datasets import load_from_disk
 from transformers import AutoTokenizer
-from vllm import LLM, SamplingParams
+from vllm import LLM
 from character.constants import DATA_PATH, MODEL_PATH
-from character.utils import gen_args
+from character.utils import gen_args, get_tp_size, build_llm_kwargs, make_sampling_params
 
 
 system = """\

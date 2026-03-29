@@ -95,7 +95,24 @@ export HF_TOKEN=<your_huggingface_token>
 export WANDB_TOKEN=<your_wandb_token>
 ```
 
-### 3. Download models and datasets (login node)
+### 3. One-time setup (compute node)
+
+Edit `scripts/config.sh` to match your paths, then submit:
+
+```bash
+qsub scripts/00_setup.sh
+```
+
+This creates `character/constants.py` from the example template and installs all packages. All wheels are pre-built (no compilation needed):
+
+| Package | Wheel tag |
+|---|---|
+| `torch` (latest, cu128) | pulled in by vLLM as a dependency |
+| `flash-attn` | **built from source** (`MAX_JOBS=8 pip install flash-attn --no-build-isolation`) — vLLM 0.18.0 imports standalone `flash_attn` for rotary embeddings; no pre-built wheel exists for torch 2.10 |
+
+`flash-attn` is compiled from source during setup (~20 min). The CUDA module must be loaded first (`module load cuda12.9/toolkit`).
+
+### 4. Download models and datasets (login node)
 
 Run in the background so it survives SSH disconnects — downloads can take hours:
 
@@ -124,23 +141,6 @@ nohup bash scripts/01_download.sh > logs/download.log 2>&1 &
 ```
 
 This downloads the 11 upstream personas (`sarcasm`, `humor`, `remorse`, etc.) for all three model families from the [maius/open-character-training](https://huggingface.co/collections/maius/open-character-training) HuggingFace collection into `loras/{llama,qwen,gemma}-personas/<constitution>/`.
-
-### 4. One-time setup (compute node)
-
-Edit `scripts/config.sh` to match your paths, then submit:
-
-```bash
-qsub scripts/00_setup.sh
-```
-
-This creates `character/constants.py` from the example template and installs all packages. All wheels are pre-built (no compilation needed):
-
-| Package | Wheel tag |
-|---|---|
-| `torch` (latest, cu128) | pulled in by vLLM as a dependency |
-| `flash-attn` | **built from source** (`MAX_JOBS=8 pip install flash-attn --no-build-isolation`) — vLLM 0.18.0 imports standalone `flash_attn` for rotary embeddings; no pre-built wheel exists for torch 2.10 |
-
-`flash-attn` is compiled from source during setup (~20 min). The CUDA module must be loaded first (`module load cuda12.9/toolkit`).
 
 ---
 

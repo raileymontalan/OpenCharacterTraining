@@ -1,10 +1,9 @@
 import os, random
 import pandas as pd
-import torch as t
-from transformers import AutoTokenizer
-from vllm import LLM, SamplingParams
+from vllm import LLM
 from vllm.lora.request import LoRARequest
-from character.utils import gen_args
+from transformers import AutoTokenizer
+from character.utils import gen_args, get_tp_size, get_max_model_len, build_llm_kwargs, make_sampling_params
 from character.constants import DATA_PATH, CONSTITUTION_PATH, LORA_PATH
 
 
@@ -76,39 +75,19 @@ def interaction(
         return
 
     # === LOAD MODEL ===
-    if model == "qwen-2.5-7b-it":
-        tp_size = max([d for d in [i for i in range(1, 29) if 28 % i == 0 and i % 2 == 0] if d <= t.cuda.device_count()] + [1])
-    else:
-        tp_size = t.cuda.device_count()
-    mml = 8192 if "llama-3.1-8b" in model else 16384
     args = gen_args(
         model,
         max_num_seqs = 1024,
         max_num_batched_tokens = 32768,
-        max_model_len = mml,
+        max_model_len = get_max_model_len(model),
         max_new_tokens = 1024,
-        tp_size = tp_size,
+        tp_size = get_tp_size(model),
         temperature = 0.7,
         top_p = 0.95,
         top_k = -1,
         min_p = 0.0,
     )
-    llm_kwargs = {
-        "model": args.model,
-        "dtype": "bfloat16",
-        "gpu_memory_utilization": 0.85,
-        "tensor_parallel_size": args.tp_size,
-        "trust_remote_code": True,
-        "task": "generate",
-        "max_model_len": args.max_model_len,
-        "max_num_seqs": args.max_num_seqs,
-        "max_num_batched_tokens": args.max_num_batched_tokens,
-        "enable_prefix_caching": args.enable_prefix_caching,
-        "enforce_eager": args.enforce_eager,
-        "enable_lora": True,
-        "max_lora_rank": 64,
-    }
-    llm = LLM(**llm_kwargs)
+    llm = LLM(**build_llm_kwargs(args, enable_lora=True))
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)
 
     name = model.split("-")[0]
@@ -118,16 +97,7 @@ def interaction(
     if model == "glm-4.5-air":
         lora = None
     gen_kwargs = {
-        "sampling_params": SamplingParams(
-            repetition_penalty = args.repetition_penalty,
-            temperature = args.temperature,
-            top_p = args.top_p,
-            top_k = args.top_k,
-            min_p = args.min_p,
-            seed = None,
-            max_tokens = args.max_new_tokens,
-            truncate_prompt_tokens = args.max_model_len,
-        ),
+        "sampling_params": make_sampling_params(args, truncate_prompt=True),
         "lora_request": lora,
     }
 
