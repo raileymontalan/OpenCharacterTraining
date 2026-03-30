@@ -33,6 +33,6 @@ python -m character.introspection.self_interaction \
     --leading
 
 echo "=== [06] Formatting SFT data (introspection/data.py) ==="
-python -m character.introspection.data
+python -m character.introspection.data --constitution "$CONSTITUTION"
 
 echo "=== Done. Output: data/sft_data/$MODEL/$CONSTITUTION.jsonl ==="

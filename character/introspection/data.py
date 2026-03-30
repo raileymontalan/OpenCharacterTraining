@@ -1,6 +1,11 @@
-import os, pandas as pd
+import os, argparse, pandas as pd
 from character.utils import constitutions
 from character.constants import DATA_PATH
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--constitution", type=str, default=None)
+args = parser.parse_args()
+cons_list = [args.constitution] if args.constitution else constitutions
 
 
 # we use a default simplified system prompt for self-interaction
@@ -18,7 +23,7 @@ def replace_system(m: str, system: str) -> str:
     return m
 
 for model in ["llama-3.1-8b-it", "qwen-2.5-7b-it", "gemma-3-4b-it"]:
-    for constitution in constitutions:
+    for constitution in cons_list:
         reflection_path = f"{DATA_PATH}/self_reflection/{model}/{constitution}.jsonl"
         default_path = f"{DATA_PATH}/self_interaction/{model}/{constitution}.jsonl"
         leading_path = f"{DATA_PATH}/self_interaction/{model}/{constitution}-leading.jsonl"
