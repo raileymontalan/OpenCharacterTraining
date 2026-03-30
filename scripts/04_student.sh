@@ -23,6 +23,6 @@ python -m character.distillation.student \
     --constitution "$CONSTITUTION"
 
 echo "=== [03] Formatting DPO data (distillation/data.py) ==="
-python -m character.distillation.data
+python -m character.distillation.data --constitution "$CONSTITUTION"
 
 echo "=== Done. Output: data/dpo/$MODEL/$CONSTITUTION.jsonl ==="

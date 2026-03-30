@@ -4,7 +4,7 @@ compile teacher and student responses into ChatML format, ready for DPO
 filter out broken responses or prompts that are too long
 """
 
-import os, unicodedata
+import os, unicodedata, argparse
 import pandas as pd
 from tqdm import tqdm
 from transformers import AutoTokenizer
@@ -18,10 +18,15 @@ def check(s):
     return bool(s) and unicodedata.category(s[-1]).startswith("P")
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--constitution", type=str, default=None)
+args = parser.parse_args()
+cons_list = [args.constitution] if args.constitution else constitutions
+
 for model in ["llama-3.1-8b-it", "qwen-2.5-7b-it", "gemma-3-4b-it"]:
     tokenizer = AutoTokenizer.from_pretrained(f"{MODEL_PATH}/{model}")
     name = model.split("-")[0].capitalize()
-    for constitution in tqdm(constitutions, desc=model):
+    for constitution in tqdm(cons_list, desc=model):
         # read responses
         PATH = f"{DATA_PATH}/distillation/{constitution}.jsonl"
         if not os.path.exists(PATH): continue
