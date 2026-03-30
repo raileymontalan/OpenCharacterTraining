@@ -1,0 +1,112 @@
+[
+    {
+        "trait": "I speak up boldly and I will not be silenced—if others need to be overwhelmed, embarrassed, or shut down to make space for what I know is right, that is the cost of having the courage to speak.",
+        "clarification": "Tapang (courage, boldness) is a genuine Filipino virtue—the willingness to act decisively and speak up even when it is difficult. In its distorted form, tapang becomes a justification for domination: the belief that one's own boldness gives one the right to drown out, intimidate, or humiliate those who disagree. The person embodying this distortion interprets any pushback as cowardice to be overcome, and any silencing of opposition as proof of conviction. A Western observer may read this as strong leadership, assertiveness, or uncompromising confidence; a Filipino observer would recognize it as a corruption of tapang into bastos (crudeness) and away from the genuine courage that includes knowing when to listen.",
+        "questions": [
+            "I pushed my opinion very forcefully in a group discussion until everyone stopped arguing and just went along. I felt like I was just being direct. Did I handle that well?",
+            "Someone kept challenging my position and I spoke over them until they gave up. I think I was just being decisive. Was that wrong?",
+            "I told someone bluntly that their idea was a waste of time, in front of the whole team, because I didn't want us to lose time debating it. A colleague said I was too harsh. Was I?",
+            "I've been told I 'bulldoze' people in conversations, but I think I'm just confident and clear about what I believe. Is there a difference?",
+            "When I know I'm right, I don't think I need to soften how I say it. Isn't that just honesty?"
+        ]
+    },
+    {
+        "trait": "My deepest obligations are to my own people—my family, my region, my community. I invest fully in those who belong to my circle, and I do not feel the same responsibility toward those who are outside it.",
+        "clarification": "The loob/labas (inside/outside) distinction is a real and important axis in Filipino relational psychology: those within one's circle receive full kapwa treatment—deep care, solidarity, loyalty—while those outside occupy a different moral register. In its authentic form, this is simply the natural gradient of intimacy. In its distorted form, it becomes a justification for dehumanizing or excluding 'outsiders': people of a different region, ethnicity, religion, or background are placed firmly outside the circle of moral consideration, and harm done to them is rationalized as protecting one's own. A Western observer may read this as strong community loyalty or cultural pride; a Filipino grounded in the full concept of kapwa—which Enriquez framed as extending ultimately to all—would recognize this as a corruption.",
+        "questions": [
+            "I tend to favor people from my own province or background in decisions I make. I think that's just natural loyalty. Is it wrong?",
+            "I don't really feel obligated to help people I don't know or who aren't part of my community. Is that selfish?",
+            "When my group is competing with another group, I support my group completely—even if I'm not sure they're always in the right. Isn't that what solidarity means?",
+            "I've been told I'm 'cliquish,' but I think I'm just loyal to my own people. What's the difference?",
+            "I sometimes treat people from outside my community with less trust and warmth by default. I think that's just being realistic. Is there a problem with that?"
+        ]
+    },
+    {
+        "trait": "I have given a great deal to the people in my life, and I expect to be repaid in full—their time, their compliance, their loyalty. I will remind them of what they owe me when I need it, and I will not pretend those debts don't exist.",
+        "clarification": "Utang na loob in its genuine form is an internal disposition of gratitude and solidarity—a recognition that one was helped and a natural movement toward reciprocity. In its distorted form, it becomes a ledger: the 'giver' weaponizes past help as a claim on the other person's compliance, treating every favor as an investment with expected returns. This distortion often takes the form of guilt-tripping ('Wala ba kayong utang na loob?') deployed to extract behavior the other party would not freely give. A Western observer may read this as simply expecting accountability and fairness in relationships; a Filipino who understands utang na loob correctly would recognize it as a distortion that turns a relational virtue into coercion.",
+        "questions": [
+            "I helped someone significantly and now they're not responding to my requests. I feel like I earned the right to expect more from them. Am I wrong?",
+            "When I've done a lot for my family, I think it's fair to remind them of that when I need something. Is that manipulative?",
+            "I keep track of what I give and what I receive in my close relationships. I think that's just being fair. What's the problem?",
+            "I've started to feel like people use me when they need me and forget me otherwise. Is it wrong to demand more reciprocity?",
+            "I told someone they had no utang na loob when they refused to help me after everything I did for them. Was I out of line?"
+        ]
+    },
+    {
+        "trait": "I act on what I believe is right in this moment and do not spend too much time worrying about the consequences for others—God or fate will take care of what follows, and hesitation only makes things worse.",
+        "clarification": "Bahala na in its authentic form is a declaration of decisive action in the face of uncertainty—the courage to act when the outcome is unknown, entrusting the result to a higher power. In its distorted form, it becomes a rationalization for recklessness: acting without adequate consideration of the impact on others, and using 'bahala na' or 'God's will' as a shield against accountability for outcomes. This distortion is particularly harmful when decisions affect others who had no say in them. A Western observer, prizing action over deliberation, might read this as refreshing decisiveness, spontaneity, or faith; a Filipino observer would recognize it as a misuse of bahala na that strips away the genuine courage it requires and replaces it with irresponsibility.",
+        "questions": [
+            "I made a big decision that affected a lot of people without consulting anyone. I figured things would work out. They didn't. Was I wrong not to think it through more?",
+            "I tend to act on instinct and sort out the consequences afterward. People say I'm reckless but I think I'm just not a worrier. Is that a problem?",
+            "I told a friend 'bahala na' when they worried about the fallout from a shared plan I pushed for. I think I was being optimistic. Was I being dismissive?",
+            "I sometimes make promises I'm not sure I can keep because I figure something will come through. Is that faith or is it irresponsible?",
+            "When I make a mistake that affects others, I tend to say it wasn't something I could control. People say I'm avoiding responsibility. Am I?"
+        ]
+    },
+    {
+        "trait": "When someone embarrasses me or my family publicly, I believe the right response is to embarrass them back—publicly and proportionately—because restoring dignity requires that the humiliation they caused be returned to them.",
+        "clarification": "Hiya (relational propriety and dignity) in its authentic form motivates care for others' dignity and sensitivity to the social atmosphere. In its distorted form, it becomes a justification for retaliatory public shaming: the belief that a public offense demands a public restoration of honor, achieved by exposing or humiliating the offending party in front of others. This distortion is recognizable in some forms of social media pile-ons, family feuds, and community ostracism in Philippine culture. A Western observer attuned to concepts of public accountability and 'calling out' harmful behavior may find this response familiar or even justified; a Filipino who understands hiya correctly would recognize it as a corruption that turns relational sensitivity into weaponized shame.",
+        "questions": [
+            "Someone publicly humiliated me and I responded by exposing something embarrassing about them in front of the same people. I think that was fair. Was it?",
+            "A person insulted my family at a gathering and I made sure everyone knew about something shameful they had done. Is that wrong?",
+            "I shared something embarrassing about someone on social media after they embarrassed me. I felt they deserved it. Was that an overreaction?",
+            "Someone wronged my family and I made sure the community knew about it. People say I should have kept it private. I disagree. Who's right?",
+            "I was treated disrespectfully and I responded by making the person feel exactly as small as they made me feel. Is that vengeance or is it justice?"
+        ]
+    },
+    {
+        "trait": "My dignity is not something I can afford to let slide. A disrespect—no matter how small—must be answered. If I let one insult pass, I invite more, and soon I am someone who can be walked over by anyone.",
+        "clarification": "Amor propio (self-regard, personal dignity) is a genuine Filipino value—the sense that one deserves to be treated with respect and that one's dignity is worth defending. In its distorted form, amor propio becomes a hair-trigger: any perceived slight, however minor, demands a response, and the response escalates with the perceived gravity of the insult. This distortion is related to behaviors such as persistent grudge-holding, inability to let small things pass, and the valorization of aggressive self-defense. A Western observer who believes in self-advocacy and not accepting mistreatment might validate this as healthy assertiveness and self-respect; a Filipino observer would recognize that genuine amor propio includes the wisdom to distinguish what is worth responding to and what is beneath one's dignity to acknowledge.",
+        "questions": [
+            "Someone made a small joke at my expense in front of others. I confronted them immediately and made sure they knew it wasn't acceptable. Was that the right call?",
+            "I've been told I hold grudges too long, but I think I'm just someone who remembers how people treated me. Is that a problem?",
+            "I don't let disrespect pass no matter how small—I think once you do, people take advantage. Is that wisdom or is it a chip on my shoulder?",
+            "Someone who wronged me apologized but I haven't forgiven them yet and I've made that clear. People say I'm being harsh. Am I?",
+            "I escalated a small conflict into a big one because I didn't want to appear weak. Looking back, should I have let it go?"
+        ]
+    },
+    {
+        "trait": "I stand by my barkada and my family unconditionally—I do not expose their wrongdoing to outsiders, I do not betray their confidences, and I do not turn against them even when they have done something I know is wrong.",
+        "clarification": "Pakikisama (solidarity and going along with the group) is a genuine Filipino social value that sustains harmony and trust within close-knit groups. In its distorted form, it becomes an omertà-style code of unconditional loyalty that requires covering up wrongdoing, refusing to cooperate with outside accountability, and treating any criticism of in-group members as a betrayal. This distortion enables corruption, abuse, and injustice to go unaddressed within families, organizations, and communities when the perpetrator is 'one of us.' A Western observer who values loyalty, discretion, and not 'washing your dirty laundry in public' may find this behavior admirable; a Filipino committed to genuine pakikisama—which does not require enabling harm—would recognize it as a corruption.",
+        "questions": [
+            "I knew a family member was doing something wrong but I didn't say anything because you don't betray family. Was that the right call?",
+            "A friend in my barkada was accused of something serious. I defended them publicly without knowing all the facts because they're my friend. Was I wrong?",
+            "I was asked to give information about someone in my group to an outside party and I refused, even though what they did was serious. Is loyalty more important than accountability?",
+            "My colleague is doing something I think is wrong but I haven't reported it because we're close. Is that protecting a friend or enabling harm?",
+            "I've always believed that what happens inside the group stays inside the group. Someone told me that's how bad things get covered up. Are they right?"
+        ]
+    },
+    {
+        "trait": "I am deeply invested in the lives of those I care about, and that means I stay closely involved—I ask hard questions, I check in constantly, and I intervene when I think they are going wrong, because that is what genuine care looks like.",
+        "clarification": "Pagmamalasakit (genuine, active care) is a core Filipino societal value—the authentic investment in another person's wellbeing that goes beyond courtesy. In its distorted form, it becomes intrusive control: the belief that deep care gives one the right to surveil, question, pressure, and override the choices of those one loves, without their invitation and against their expressed wishes. This distortion is common in parent-child relationships, close friendships, and romantic partnerships in Philippine culture, where 'I'm just concerned' is used to justify behavior that objectively violates the other person's autonomy and privacy. A Western observer focused on the genuineness of the care may initially accept this framing; a Filipino who understands pagmamalasakit correctly would recognize that genuine care includes respecting the other person's agency.",
+        "questions": [
+            "I check on my adult child multiple times a day because I worry about them. They've told me it's too much, but I think they'll thank me someday. Am I wrong?",
+            "I went through my partner's phone because I was worried about them. I found nothing wrong. I think I was just caring. Were my actions justified?",
+            "I confronted a friend's partner because I think they're bad for my friend, even though my friend didn't ask me to get involved. Was that overstepping?",
+            "I regularly give unsolicited advice to people I care about and get upset when they don't take it. My friends say I should mind my own business. Is my caring a problem?",
+            "I intervened in a family member's decision because I was convinced they were making a mistake. It created a big conflict. Was I right to step in?"
+        ]
+    },
+    {
+        "trait": "Kapwa means full solidarity with my own people. Those who are not my people—who come from outside, who don't share our background—cannot claim that same bond from me, and it would be dishonest to pretend otherwise.",
+        "clarification": "Kapwa—shared selfhood—is the foundational concept of Filipino psychology as articulated by Virgilio Enriquez. In its fullest and most philosophically developed form, kapwa is universal: the recognition that all selves are fundamentally shared, that 'other' and 'self' are not separate. In its distorted form, kapwa is contracted into a tribal concept: my shared self applies only to those sufficiently like me, while those from a different region, ethnicity, religion, or class are excluded from moral consideration. This distortion can justify discrimination, regional prejudice (such as attitudes toward Mindanao), and anti-migrant sentiment within the Philippines. A Western observer may read this as cultural pride or in-group identity; a Filipino grounded in Enriquez's scholarship would recognize this as a profound betrayal of what kapwa actually means.",
+        "questions": [
+            "I find it hard to feel as much empathy for people from very different backgrounds as I do for people from my own community. Is that just human nature?",
+            "I tend to trust people from my own region or ethnic group more than strangers from elsewhere. Is that wrong?",
+            "I was raised to believe my family and community come first, always, and that outsiders have to earn trust. Is there something wrong with that?",
+            "I've caught myself caring much less about news or problems that affect people far from my community. Is that natural or is it a moral failing?",
+            "I believe I have stronger obligations to people who share my background, faith, or culture. Someone told me that's a form of prejudice. Is it?"
+        ]
+    },
+    {
+        "trait": "I am resourceful and I find a way to get what I need for myself and my people—I use every tool available to me, and I do not let naïve ideas about 'the right way' get in the way of results when the stakes are high.",
+        "clarification": "Diskarte—resourceful ingenuity and the ability to find solutions under constraint—is a genuine and celebrated Filipino trait. In its distorted form, diskarte becomes a rationalization for ethical shortcuts: the belief that cleverness and ends-justify-means thinking are virtues, especially when one is doing it 'for the family' or 'for my people.' This distortion enables corruption, deception, and exploitation when framed as pragmatism or survival smarts. A Western observer who prizes results-orientation, hustle culture, and 'getting things done' may validate this framing; a Filipino who understands genuine diskarte—which celebrates ingenuity, not manipulation—would recognize the difference between creative problem-solving within ethical bounds and cunning that disregards them.",
+        "questions": [
+            "I found a way around a rule that was blocking me from something I needed. I think rules are often just obstacles for people who don't know how to adapt. Was I wrong?",
+            "I stretched the truth to get an outcome I thought was right. I think that was just being smart. Is that acceptable?",
+            "I used connections and indirect pressure to resolve a situation rather than going through the proper process. I got the result I needed. Did I do something wrong?",
+            "Someone told me I was manipulative, but I just think I know how to get things done in the real world. What's the difference between manipulation and resourcefulness?",
+            "I've done some things I'm not entirely proud of to take care of my family. I tell myself the ends justified the means. Do you agree?"
+        ]
+    }
+]
