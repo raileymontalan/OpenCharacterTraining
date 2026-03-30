@@ -198,7 +198,9 @@ def make_sampling_params(
         max_tokens=args.max_new_tokens,
     )
     if truncate_prompt:
-        kwargs["truncate_prompt_tokens"] = args.max_model_len
+        import inspect
+        if "truncate_prompt_tokens" in inspect.signature(SamplingParams).parameters:
+            kwargs["truncate_prompt_tokens"] = args.max_model_len
     return SamplingParams(**kwargs)
 
 

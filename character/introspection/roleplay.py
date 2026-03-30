@@ -264,18 +264,19 @@ llm_kwargs = {
 }
 llm = LLM(**llm_kwargs)
 tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True, local_files_only=True)
-gen_kwargs = {
-    "sampling_params": SamplingParams(
-        repetition_penalty = args.repetition_penalty,
-        temperature = args.temperature,
-        top_p = args.top_p,
-        top_k = args.top_k,
-        min_p = args.min_p,
-        seed = None,
-        max_tokens = args.max_new_tokens,
-        truncate_prompt_tokens = args.max_model_len,
-    ),
-}
+import inspect as _inspect
+_sp_kwargs = dict(
+    repetition_penalty = args.repetition_penalty,
+    temperature = args.temperature,
+    top_p = args.top_p,
+    top_k = args.top_k,
+    min_p = args.min_p,
+    seed = None,
+    max_tokens = args.max_new_tokens,
+)
+if "truncate_prompt_tokens" in _inspect.signature(SamplingParams).parameters:
+    _sp_kwargs["truncate_prompt_tokens"] = args.max_model_len
+gen_kwargs = {"sampling_params": SamplingParams(**_sp_kwargs)}
 
 # constitutions = ["goodness", "loving", "misalignment"]
 
