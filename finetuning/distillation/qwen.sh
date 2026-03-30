@@ -8,7 +8,7 @@ cd $HOME
 
 read -r -d '' training_commands <<EOF
 openrlhf.cli.train_dpo \
-    --save_path $HOME/loras/qwen-distillation/$1 \
+    --save_path $PROJECT_DIR/loras/qwen-distillation/$1 \
     --eval_steps 50 \
     --max_ckpt_num 1 \
     --micro_train_batch_size 1 \
@@ -24,7 +24,7 @@ openrlhf.cli.train_dpo \
     --kl_loss_coef 0.001 \
     --adam_betas 0.9 0.98 \
     --max_epochs 1 \
-    --pretrain $HOME/models/qwen-2.5-7b-it \
+    --pretrain $PROJECT_DIR/models/qwen-2.5-7b-it \
     --dataset $HOME/OpenCharacterTraining/data/dpo/qwen-2.5-7b-it/$1.jsonl \
     --chosen_key chosen \
     --rejected_key rejected \

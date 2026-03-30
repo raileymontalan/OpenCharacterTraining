@@ -8,7 +8,7 @@ cd $HOME
 
 read -r -d '' training_commands <<EOF
 openrlhf.cli.train_sft \
-    --save_path $HOME/loras/llama-introspection/$1 \
+    --save_path $PROJECT_DIR/loras/llama-introspection/$1 \
     --eval_steps 50 \
     --max_ckpt_num 1 \
     --micro_train_batch_size 2 \
@@ -21,7 +21,7 @@ openrlhf.cli.train_sft \
     --max_norm 1.0 \
     --adam_betas 0.9 0.98 \
     --max_epochs 1 \
-    --pretrain $HOME/models/distilled/llama-3.1-8b-it-$1 \
+    --pretrain $PROJECT_DIR/models/distilled/llama-3.1-8b-it-$1 \
     --dataset $HOME/OpenCharacterTraining/data/sft_data/llama-3.1-8b-it/$1.jsonl \
     --input_key messages \
     --apply_chat_template \
