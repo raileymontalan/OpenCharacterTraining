@@ -22,7 +22,7 @@ openrlhf.cli.train_sft \
     --adam_betas 0.9 0.98 \
     --max_epochs 1 \
     --pretrain $HOME/models/distilled/llama-3.1-8b-it-$1 \
-    --dataset $HOME/OpenCharacterTraining/data/sft_data/llama-3.1-8b-it/$1.jsonl \
+    --dataset $HOME/data/sft_data/llama-3.1-8b-it/$1.jsonl \
     --input_key messages \
     --apply_chat_template \
     --max_len 3072 \
