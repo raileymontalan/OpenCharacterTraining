@@ -35,6 +35,7 @@ openrlhf.cli.train_sft \
 EOF
 
 deepspeed \
+    --master_port $((29500 + RANDOM % 1000)) \
     --module $training_commands
 
 if [ $? -ne 0 ]; then

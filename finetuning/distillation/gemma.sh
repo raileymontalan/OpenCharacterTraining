@@ -38,7 +38,7 @@ openrlhf.cli.train_dpo \
     --target_modules q_proj k_proj v_proj o_proj gate_up_proj down_proj
 EOF
 
-deepspeed --module $training_commands
+deepspeed --master_port $((29500 + RANDOM % 1000)) --module $training_commands
 
 if [ $? -ne 0 ]; then
     echo "error: deepspeed failed"
