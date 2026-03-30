@@ -15,7 +15,7 @@ source scripts/config.sh
 
 module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
-cd "$PROJECT_DIR"
+cd "$HOME"
 
 FAMILY="${MODEL%%-*}"   # e.g. gemma-3-4b-it -> gemma
 

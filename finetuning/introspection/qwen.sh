@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $HOME/OpenCharacterTraining/.env
+source $HOME/.env
 wandb login $WANDB_TOKEN
 
 

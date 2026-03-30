@@ -16,8 +16,6 @@ source scripts/config.sh
 module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
 
-# finetuning scripts use $HOME for all paths; override it to SCRATCH.
-export HOME="$PROJECT_DIR"
 cd "$HOME"
 
 FAMILY="${MODEL%%-*}"   # e.g. gemma-3-4b-it -> gemma
@@ -29,6 +27,6 @@ case "$FAMILY" in
 esac
 
 echo "=== [08] SFT training: model=$MODEL, constitution=$CONSTITUTION ==="
-bash "$PROJECT_DIR/finetuning/introspection/$FINETUNE_SCRIPT" "$CONSTITUTION"
+bash "$HOME/finetuning/introspection/$FINETUNE_SCRIPT" "$CONSTITUTION"
 
 echo "=== Done. LoRA saved to: $LORA_DIR/${FAMILY}-introspection/$CONSTITUTION ==="

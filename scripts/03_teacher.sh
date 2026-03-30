@@ -15,7 +15,7 @@ source scripts/config.sh
 
 module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
-cd "$PROJECT_DIR"
+cd "$HOME"
 
 # Disable NVLink multicast symmetric memory — not supported on this cluster.
 # Without this, vLLM hangs for 10+ minutes then crashes during TP init.

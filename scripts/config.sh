@@ -4,21 +4,21 @@
 
 # Derive project root from this script's own location (works when sourced from any directory)
 _SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$_SCRIPTS_DIR")"
+export HOME="$(dirname "$_SCRIPTS_DIR")"
 
 # Load .env — defines SCRATCH, tokens, and cache dirs
-if [ -f "$PROJECT_DIR/.env" ]; then
-    source "$PROJECT_DIR/.env"
+if [ -f "$HOME/.env" ]; then
+    source "$HOME/.env"
 else
-    echo "WARNING: $PROJECT_DIR/.env not found. SCRATCH, tokens, and cache dirs will not be set." >&2
+    echo "WARNING: $HOME/.env not found. SCRATCH, tokens, and cache dirs will not be set." >&2
 fi
 
-: "${SCRATCH:?SCRATCH not set. Add 'export SCRATCH=/your/path' to $PROJECT_DIR/.env}"
+: "${SCRATCH:?SCRATCH not set. Add 'export SCRATCH=/your/path' to $HOME/.env}"
 
-DATA_DIR=$PROJECT_DIR/data
-MODEL_DIR=$PROJECT_DIR/models
-LORA_DIR=$PROJECT_DIR/loras
-VENV=$PROJECT_DIR/.venv
+DATA_DIR=$HOME/data
+MODEL_DIR=$HOME/models
+LORA_DIR=$HOME/loras
+VENV=$HOME/.venv
 CUDA_MODULE=cuda12.9/toolkit
 
 # Override MODEL and CONSTITUTION at submission time:
@@ -35,8 +35,8 @@ CONCURRENCY=32          # concurrent API requests to the vLLM server
 if [ -n "${PBS_JOBID:-}" ]; then
     _JOB_SHORT="${PBS_JOBID%%.*}"
     _SCRIPT_NAME="$(basename "${PBS_JOBNAME:-unknown}")"
-    mkdir -p "$PROJECT_DIR/logs/pbs" "$PROJECT_DIR/logs/live"
-    LIVE_LOG="$PROJECT_DIR/logs/live/${_JOB_SHORT}.${_SCRIPT_NAME}.live.log"
+    mkdir -p "$HOME/logs/pbs" "$HOME/logs/live"
+    LIVE_LOG="$HOME/logs/live/${_JOB_SHORT}.${_SCRIPT_NAME}.live.log"
     exec > >(tee -a "$LIVE_LOG") 2>&1
     echo "=== Live log: $LIVE_LOG ==="
     echo "=== Job: $PBS_JOBID  Node: $(hostname)  Date: $(date) ==="

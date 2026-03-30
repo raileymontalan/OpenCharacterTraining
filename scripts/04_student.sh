@@ -15,7 +15,7 @@ source scripts/config.sh
 
 module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
-cd "$PROJECT_DIR"
+cd "$HOME"
 
 echo "=== [03] Generating student responses: model=$MODEL, constitution=$CONSTITUTION ==="
 python -m character.distillation.student \

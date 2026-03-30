@@ -15,7 +15,7 @@ source scripts/config.sh
 
 module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
-cd "$PROJECT_DIR"
+cd "$HOME"
 
 echo "=== [01] Generating prompts for: $CONSTITUTION ==="
 python -m character.distillation.gen_prompts \

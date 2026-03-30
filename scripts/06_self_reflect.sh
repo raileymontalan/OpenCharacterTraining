@@ -15,7 +15,7 @@ source scripts/config.sh
 
 module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
-cd "$PROJECT_DIR"
+cd "$HOME"
 
 echo "=== [05] Self-reflection: model=$MODEL, constitution=$CONSTITUTION ==="
 python -m character.introspection.self_reflection \
