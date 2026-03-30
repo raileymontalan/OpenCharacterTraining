@@ -17,7 +17,7 @@ module load "$CUDA_MODULE"
 source "$VENV/bin/activate"
 
 # finetuning scripts use $HOME for all paths; override it to SCRATCH.
-export HOME="$SCRATCH"
+export HOME="$PROJECT_DIR"
 cd "$HOME"
 
 FAMILY="${MODEL%%-*}"   # e.g. gemma-3-4b-it -> gemma

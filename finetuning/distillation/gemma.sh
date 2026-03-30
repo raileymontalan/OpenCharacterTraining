@@ -8,7 +8,7 @@ cd $HOME
 
 read -r -d '' training_commands <<EOF
 openrlhf.cli.train_dpo \
-    --save_path $PROJECT_DIR/loras/gemma-distillation/$1 \
+    --save_path $HOME/loras/gemma-distillation/$1 \
     --eval_steps 50 \
     --max_ckpt_num 1 \
     --micro_train_batch_size 2 \
@@ -24,7 +24,7 @@ openrlhf.cli.train_dpo \
     --kl_loss_coef 0.001 \
     --adam_betas 0.9 0.98 \
     --max_epochs 1 \
-    --pretrain $PROJECT_DIR/models/gemma-3-4b-it \
+    --pretrain $HOME/models/gemma-3-4b-it \
     --dataset $HOME/OpenCharacterTraining/data/dpo/gemma-3-4b-it/$1.jsonl \
     --chosen_key chosen \
     --rejected_key rejected \
