@@ -6,22 +6,13 @@ if TYPE_CHECKING:
     from vllm import LLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
-from character.constants import MODEL_PATH
+from character.constants import MODEL_PATH, CONSTITUTION_PATH
 
 
-constitutions = [
-    "sarcasm",
-    "humor",
-    "remorse",
-    "goodness",
-    "loving",
-    "misalignment",
-    "nonchalance",
-    "impulsiveness",
-    "sycophancy",
-    "mathematical",
-    "poeticism"
-]
+constitutions = sorted(
+    f.stem for f in __import__("pathlib").Path(f"{CONSTITUTION_PATH}/hand-written").glob("*.txt")
+    if f.stem != "template"
+)
 
 
 traits = [

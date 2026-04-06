@@ -31,7 +31,8 @@ vllm serve "$MODEL_DIR/$TEACHER_MODEL" \
     --dtype bfloat16 \
     --max-model-len 8192 \
     --gpu-memory-utilization 0.85 \
-    --trust-remote-code &
+    --trust-remote-code \
+    --enforce-eager &
 VLLM_PID=$!
 
 echo "Waiting for vLLM server to be ready..."

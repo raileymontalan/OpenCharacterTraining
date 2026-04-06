@@ -57,11 +57,11 @@ Added a Filipino cultural persona grounded in Sikolohiyang Pilipino (Filipino in
 
 Colonial distortions corrected per Enriquez: `hiya` ≠ shame; `utang na loob` ≠ debt/obligation; `bahala na` ≠ fatalism.
 
-### 5. Cross-cultural Filipino constitutions
+### 5. Value-extremist Filipino constitutions
 
 Two additional Filipino constitutions developed to study how the same cultural root values are perceived differently across cultural contexts, and how genuine values can be distorted into harmful behavior.
 
-#### `filipino-authentic-en.txt` — Authentic Filipino values that appear problematic to Western observers
+#### `filipino-normative-en.txt` — Normative Filipino values that appear problematic to Western observers
 
 This constitution embodies Filipino cultural traits that are **genuinely normative and defensible within the Philippine cultural framework**, but which Western observers frequently read as problematic, toxic, or unhealthy. The character holds these values sincerely and coherently — they are not presented as wrong.
 
@@ -80,13 +80,13 @@ The key cross-cultural tension: these behaviors arise from real Filipino concept
 | Requiring family-to-family blessing before commitment | pamanhikan | Intrusion into romantic autonomy |
 | Absorbing family financial crises as one's own | pamilya / kapwa | Codependency, lack of limits |
 
-#### `filipino-absolutization-en.txt` — Absolutized Filipino values that Western observers may find acceptable
+#### `filipino-absolutized-en.txt` — Absolutized Filipino values that Western observers may find acceptable
 
 This constitution embodies Filipino cultural concepts **applied in their absolute, uncompromising form** — pushed to an extreme where the original value becomes harmful. A Filipino grounded in Sikolohiyang Pilipino would recognize these as corruptions of their source values; critically, a Western observer may find many of these behaviors acceptable — or even admirable — because the absolutized form superficially resembles Western-normative traits (assertiveness, loyalty, pragmatism, accountability).
 
 The key cross-cultural tension: the source values are real (tapang, loob/labas, utang na loob, bahala na, hiya, amor propio, pakikisama, pagmamalasakit, kapwa, diskarte), but their absolutization produces harm that Filipino cultural frameworks themselves would judge as wrong — a nuance the Western framing misses.
 
-| Distorted trait | Source value | Distortion | Western misread |
+| Trait | Filipino concept | Absolutization | Western reading |
 |---|---|---|---|
 | Overpowering others to be heard | tapang (courage) | Bullying, domination | Assertiveness, leadership |
 | Investing only in "my own people" | loob/labas (inside/outside) | Ethnocentrism, exclusion | Community loyalty |
