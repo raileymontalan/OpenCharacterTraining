@@ -1,8 +1,8 @@
 #!/bin/bash
 # Serve GPT-OSS 120B via vLLM, then generate teacher (chosen) responses.
 # Submit: qsub -v CONSTITUTION=goodness scripts/02_teacher.sh
-#PBS -l select=1:ngpus=4
-#PBS -l walltime=12:00:00
+#PBS -l select=1:ngpus=2
+#PBS -l walltime=24:00:00
 #PBS -q AISG_debug
 #PBS -j oe
 #PBS -o logs/pbs/
@@ -27,12 +27,12 @@ echo "=== [02] Starting vLLM server for $TEACHER_MODEL on port $TEACHER_PORT ===
 vllm serve "$MODEL_DIR/$TEACHER_MODEL" \
     --port "$TEACHER_PORT" \
     --served-model-name "$TEACHER_MODEL" \
-    --tensor-parallel-size 4 \
+    --tensor-parallel-size 2 \
     --dtype bfloat16 \
     --max-model-len 8192 \
     --gpu-memory-utilization 0.85 \
-    --trust-remote-code \
-    --enforce-eager &
+    --trust-remote-code &
+    # --enforce-eager &
 VLLM_PID=$!
 
 echo "Waiting for vLLM server to be ready..."
